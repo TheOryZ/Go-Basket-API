@@ -31,4 +31,6 @@ func main() {
 	//Connection DB and migrations
 	db.AutoMigrate(&user.User{}, &role.Role{}, &userrolemap.UserRoleMap{}, &category.Category{}, &product.Product{}, &status.Status{}, &order.Order{}, &productcategorymap.ProductCategoryMap{}, &cart.Cart{})
 	log.Println("Migrations done")
+
+	//TODO: Add seed data roles and status
 }
