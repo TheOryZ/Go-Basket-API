@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/joho/godotenv v1.4.0
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	gorm.io/driver/postgres v1.3.3
 	gorm.io/gorm v1.23.4
 )
@@ -19,6 +20,5 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
