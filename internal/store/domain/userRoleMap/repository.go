@@ -52,14 +52,14 @@ func (r *UserRoleMapRepository) FindByID(id uint) (*UserRoleMap, error) {
 //Find userrolemap by userid
 func (r *UserRoleMapRepository) FindByUserID(userid uint) (*[]UserRoleMap, error) {
 	userrolemap := []UserRoleMap{}
-	err := r.db.Where("user_id = ?", userid).Find(&userrolemap).Error
+	err := r.db.Where("user_id = ? AND deleted_at = ?", userid, nil).Find(&userrolemap).Error
 	return &userrolemap, err
 }
 
 //Find userrolemap by roleid
 func (r *UserRoleMapRepository) FindByRoleID(roleid uint) (*[]UserRoleMap, error) {
 	userrolemap := []UserRoleMap{}
-	err := r.db.Where("role_id = ?", roleid).Find(&userrolemap).Error
+	err := r.db.Where("role_id = ? AND deleted_at = ?", roleid, nil).Find(&userrolemap).Error
 	return &userrolemap, err
 }
 
