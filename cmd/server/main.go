@@ -29,11 +29,19 @@ func main() {
 	log.Println("Postgres connected")
 
 	//Connection DB and migrations
-	if db.Migrator().HasTable(&user.User{}) == false {
+	if !db.Migrator().HasTable(&user.User{}) {
 		db.AutoMigrate(&user.User{}, &role.Role{}, &userrolemap.UserRoleMap{}, &category.Category{}, &product.Product{}, &status.Status{}, &order.Order{}, &productcategorymap.ProductCategoryMap{}, &cart.Cart{})
+		//Add Seed data
+		roleRepo := role.NewRoleRepository(db)
+		roleRepo.Seed()
+		userRepo := user.NewUserRepository(db)
+		userRepo.Seed()
+		statusRepo := status.NewStatusRepository(db)
+		statusRepo.Seed()
+		userrolemapRepo := userrolemap.NewUserRoleMapRepository(db)
+		userrolemapRepo.Seed()
 		log.Println("Migrations done")
 	}
 	log.Println("DB connected")
 
-	//TODO: Add seed data roles and status
 }
