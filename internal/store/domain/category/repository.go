@@ -2,83 +2,101 @@ package category
 
 import "gorm.io/gorm"
 
-type CategoryRepository struct {
+type categoryRepository struct {
 	db *gorm.DB
 }
 
-func NewCategoryRepository(db *gorm.DB) *CategoryRepository {
-	return &CategoryRepository{db: db}
+//interface
+type ICategoryRepository interface {
+	Migration()
+	Create(category *Category) error
+	Update(category *Category) error
+	Delete(category *Category) error
+	DeleteByID(id uint) error
+	FindAll() ([]Category, error)
+	FindAllWithPagination(page int, limit int) ([]Category, error)
+	CountAll() (int64, error)
+	FindByID(id uint) (*Category, error)
+	FindByName(name string) (*Category, error)
+	SearchByName(s string) ([]Category, error)
+	FindAllWithProducts() ([]Category, error)
 }
-func (r *CategoryRepository) Migration() {
+
+var CategoryRepository ICategoryRepository = &categoryRepository{}
+
+func NewCategoryRepository(db *gorm.DB) *categoryRepository {
+	return &categoryRepository{db: db}
+}
+func (r *categoryRepository) Migration() {
 	r.db.AutoMigrate(&Category{})
 }
 
 //Create a new category
-func (r *CategoryRepository) Create(category *Category) error {
+func (r *categoryRepository) Create(category *Category) error {
 	return r.db.Create(category).Error
 }
 
 //Update a category
-func (r *CategoryRepository) Update(category *Category) error {
+func (r *categoryRepository) Update(category *Category) error {
 	return r.db.Save(category).Error
 }
 
 //Delete a category
-func (r *CategoryRepository) Delete(category *Category) error {
+func (r *categoryRepository) Delete(category *Category) error {
 	return r.db.Delete(category).Error
 }
 
 //Delete a category by id
-func (r *CategoryRepository) DeleteByID(id uint) error {
+func (r *categoryRepository) DeleteByID(id uint) error {
 	category := Category{}
 	category.ID = id
 	return r.db.Delete(&category).Error
 }
 
 //Find all categories
-func (r *CategoryRepository) FindAll() ([]Category, error) {
+func (r *categoryRepository) FindAll() ([]Category, error) {
 	var categories []Category
 	err := r.db.Where("deleted_at = ?", nil).Find(&categories).Error
 	return categories, err
 }
 
 //Find all with pagination  //TODO: check this
-func (r *CategoryRepository) FindAllWithPagination(page int, limit int) ([]Category, error) {
+func (r *categoryRepository) FindAllWithPagination(page int, limit int) ([]Category, error) {
 	var categories []Category
 	err := r.db.Where("deleted_at = ?", nil).Offset(page).Limit(limit).Find(&categories).Error
 	return categories, err
 }
 
 //Count all categories
-func (r *CategoryRepository) CountAll() (int64, error) {
+func (r *categoryRepository) CountAll() (int64, error) {
 	var count int64
 	err := r.db.Model(&Category{}).Where("deleted_at = ?", nil).Count(&count).Error
 	return count, err
 }
 
 //Find a category by id
-func (r *CategoryRepository) FindByID(id uint) (*Category, error) {
+func (r *categoryRepository) FindByID(id uint) (*Category, error) {
 	category := Category{}
 	err := r.db.First(&category, id).Error
 	return &category, err
 }
 
 //Find a category by name
-func (r *CategoryRepository) FindByName(name string) (*Category, error) {
+func (r *categoryRepository) FindByName(name string) (*Category, error) {
 	category := Category{}
 	err := r.db.Where("name = ?", name).First(&category).Error
 	return &category, err
 }
 
 //Search categories by name
-func (r *CategoryRepository) SearchByName(s string) ([]Category, error) {
+func (r *categoryRepository) SearchByName(s string) ([]Category, error) {
 	var categories []Category
 	err := r.db.Where("name LIKE ?", "%"+s+"%").Find(&categories).Error
 	return categories, err
 }
 
 //Get all categories with products //TODO: Check this
-func (r *CategoryRepository) FindAllWithProducts() ([]Category, error) {
+func (r *categoryRepository) FindAllWithProducts() ([]Category, error) {
 	var categories []Category
 	err := r.db.Preload("Products").Where("deleted_at = ?", nil).Find(&categories).Error
 	return categories, err
