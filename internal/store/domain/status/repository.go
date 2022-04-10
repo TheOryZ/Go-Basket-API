@@ -1,63 +1,81 @@
 package status
 
-import "gorm.io/gorm"
+import (
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
+)
 
-type StatusRepository struct {
+type statusRepository struct {
 	db *gorm.DB
 }
 
-func NewStatusRepository(db *gorm.DB) *StatusRepository {
-	return &StatusRepository{db: db}
+//interface
+type IStatusRepository interface {
+	Migration()
+	Create(status *Status) error
+	Update(status *Status) error
+	Delete(status *Status) error
+	DeleteByID(id uuid.UUID) error
+	FindAll() ([]Status, error)
+	FindByID(id uuid.UUID) (*Status, error)
+	FindByName(name string) (*Status, error)
+	Seed() error
 }
-func (r *StatusRepository) Migration() {
+
+var StatusRepository IStatusRepository = &statusRepository{}
+
+func NewStatusRepository(db *gorm.DB) *statusRepository {
+	return &statusRepository{db: db}
+}
+func (r *statusRepository) Migration() {
 	r.db.AutoMigrate(&Status{})
 }
 
 //Create a new status
-func (r *StatusRepository) Create(status *Status) error {
+func (r *statusRepository) Create(status *Status) error {
 	return r.db.Create(status).Error
 }
 
 //Update a status
-func (r *StatusRepository) Update(status *Status) error {
+func (r *statusRepository) Update(status *Status) error {
 	return r.db.Save(status).Error
 }
 
 //Delete a status
-func (r *StatusRepository) Delete(status *Status) error {
+func (r *statusRepository) Delete(status *Status) error {
 	return r.db.Delete(status).Error
 }
 
 //Delete a status by id
-func (r *StatusRepository) DeleteByID(id uint) error {
+func (r *statusRepository) DeleteByID(id uuid.UUID) error {
 	status := Status{}
 	status.ID = id
 	return r.db.Delete(&status).Error
 }
 
 //Find all statuses
-func (r *StatusRepository) FindAll() ([]Status, error) {
+func (r *statusRepository) FindAll() ([]Status, error) {
 	var statuses []Status
 	err := r.db.Find(&statuses).Error
 	return statuses, err
 }
 
 //Find a status by id
-func (r *StatusRepository) FindByID(id uint) (*Status, error) {
+func (r *statusRepository) FindByID(id uuid.UUID) (*Status, error) {
 	status := Status{}
 	err := r.db.First(&status, id).Error
 	return &status, err
 }
 
 //Find a status by name
-func (r *StatusRepository) FindByName(name string) (*Status, error) {
+func (r *statusRepository) FindByName(name string) (*Status, error) {
 	status := Status{}
 	err := r.db.Where("name = ?", name).First(&status).Error
 	return &status, err
 }
 
 //Seed a status
-func (r *StatusRepository) Seed() error {
+func (r *statusRepository) Seed() error {
 	statuses := []Status{
 		{Name: "Pending"},
 		{Name: "In Progress"},

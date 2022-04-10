@@ -1,6 +1,9 @@
 package category
 
-import "gorm.io/gorm"
+import (
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
+)
 
 type categoryRepository struct {
 	db *gorm.DB
@@ -12,11 +15,11 @@ type ICategoryRepository interface {
 	Create(category *Category) error
 	Update(category *Category) error
 	Delete(category *Category) error
-	DeleteByID(id uint) error
+	DeleteByID(id uuid.UUID) error
 	FindAll() ([]Category, error)
 	FindAllWithPagination(page int, limit int) ([]Category, error)
 	CountAll() (int64, error)
-	FindByID(id uint) (*Category, error)
+	FindByID(id uuid.UUID) (*Category, error)
 	FindByName(name string) (*Category, error)
 	SearchByName(s string) ([]Category, error)
 	FindAllWithProducts() ([]Category, error)
@@ -47,7 +50,7 @@ func (r *categoryRepository) Delete(category *Category) error {
 }
 
 //Delete a category by id
-func (r *categoryRepository) DeleteByID(id uint) error {
+func (r *categoryRepository) DeleteByID(id uuid.UUID) error {
 	category := Category{}
 	category.ID = id
 	return r.db.Delete(&category).Error
@@ -75,7 +78,7 @@ func (r *categoryRepository) CountAll() (int64, error) {
 }
 
 //Find a category by id
-func (r *categoryRepository) FindByID(id uint) (*Category, error) {
+func (r *categoryRepository) FindByID(id uuid.UUID) (*Category, error) {
 	category := Category{}
 	err := r.db.First(&category, id).Error
 	return &category, err

@@ -1,10 +1,14 @@
 package role
 
-import "gorm.io/gorm"
+import (
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
+)
 
 type Role struct {
 	gorm.Model
-	Name string `json:"name" gorm:"type:varchar(255);not null"`
+	ID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Name string    `json:"name" gorm:"type:varchar(255);not null"`
 }
 
 func (Role) TableName() string {

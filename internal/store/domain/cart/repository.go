@@ -1,63 +1,81 @@
 package cart
 
-import "gorm.io/gorm"
+import (
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
+)
 
-type CartRepository struct {
+type cartRepository struct {
 	db *gorm.DB
 }
 
-func NewCartRepository(db *gorm.DB) *CartRepository {
-	return &CartRepository{db: db}
+//interface
+type ICartRepository interface {
+	Migration()
+	Create(cart *Cart) error
+	Update(cart *Cart) error
+	Delete(cart *Cart) error
+	DeleteByID(id uuid.UUID) error
+	FindAll() ([]Cart, error)
+	FindByID(id uuid.UUID) (*Cart, error)
+	FindByUserID(userID uuid.UUID) ([]Cart, error)
+	FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Cart, error)
 }
-func (r *CartRepository) Migration() {
+
+var CartRepository ICartRepository = &cartRepository{}
+
+func NewCartRepository(db *gorm.DB) *cartRepository {
+	return &cartRepository{db: db}
+}
+func (r *cartRepository) Migration() {
 	r.db.AutoMigrate(&Cart{})
 }
 
 //Create a new cart
-func (r *CartRepository) Create(cart *Cart) error {
+func (r *cartRepository) Create(cart *Cart) error {
 	return r.db.Create(cart).Error
 }
 
 //Update a cart
-func (r *CartRepository) Update(cart *Cart) error {
+func (r *cartRepository) Update(cart *Cart) error {
 	return r.db.Save(cart).Error
 }
 
 //Delete a cart
-func (r *CartRepository) Delete(cart *Cart) error {
+func (r *cartRepository) Delete(cart *Cart) error {
 	return r.db.Delete(cart).Error
 }
 
 //Delete a cart by id
-func (r *CartRepository) DeleteByID(id uint) error {
+func (r *cartRepository) DeleteByID(id uuid.UUID) error {
 	cart := Cart{}
 	cart.ID = id
 	return r.db.Delete(&cart).Error
 }
 
 //Find all carts
-func (r *CartRepository) FindAll() ([]Cart, error) {
+func (r *cartRepository) FindAll() ([]Cart, error) {
 	var carts []Cart
 	err := r.db.Find(&carts).Error
 	return carts, err
 }
 
 //Find a cart by id
-func (r *CartRepository) FindByID(id uint) (*Cart, error) {
+func (r *cartRepository) FindByID(id uuid.UUID) (*Cart, error) {
 	cart := Cart{}
 	err := r.db.First(&cart, id).Error
 	return &cart, err
 }
 
 //Find carts by user id
-func (r *CartRepository) FindByUserID(userID uint) ([]Cart, error) {
+func (r *cartRepository) FindByUserID(userID uuid.UUID) ([]Cart, error) {
 	var carts []Cart
 	err := r.db.Where("user_id = ? AND deleted_at = ?", userID, nil).Find(&carts).Error
 	return carts, err
 }
 
 //Find carts by user id with status //TODO: Chack this
-func (r *CartRepository) FindByUserIDInProgress(userID, statusID uint) ([]Cart, error) {
+func (r *cartRepository) FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Cart, error) {
 	var carts []Cart
 	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at = ?", userID, statusID, nil).Find(&carts).Error
 	return carts, err
