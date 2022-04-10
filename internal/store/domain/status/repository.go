@@ -77,10 +77,10 @@ func (r *statusRepository) FindByName(name string) (*Status, error) {
 //Seed a status
 func (r *statusRepository) Seed() error {
 	statuses := []Status{
-		{Name: "Pending"},
-		{Name: "In Progress"},
-		{Name: "Completed"},
-		{Name: "Canceled"},
+		{Name: "Pending", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
+		{Name: "In Progress", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
+		{Name: "Completed", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
+		{Name: "Canceled", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
 	}
 	for _, status := range statuses {
 		err := r.db.FirstOrCreate(&status, status).Error

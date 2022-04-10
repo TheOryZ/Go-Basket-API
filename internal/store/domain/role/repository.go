@@ -84,8 +84,8 @@ func (r *roleRepository) GetWithUsers(id uuid.UUID) (*Role, error) {
 //Seed a role
 func (r *roleRepository) Seed() error {
 	roles := []Role{
-		{Name: "admin"},
-		{Name: "member"},
+		{Name: "admin", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
+		{Name: "member", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00"},
 	}
 	for _, role := range roles {
 		if err := r.db.Create(&role).Error; err != nil {

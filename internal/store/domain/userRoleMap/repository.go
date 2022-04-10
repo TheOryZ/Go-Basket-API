@@ -1,6 +1,8 @@
 package userrolemap
 
 import (
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/role"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/user"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -20,6 +22,7 @@ type IUserRoleMapRepository interface {
 	FindByID(id uuid.UUID) (*UserRoleMap, error)
 	FindByUserID(userid uuid.UUID) (*[]UserRoleMap, error)
 	FindByRoleID(roleid uuid.UUID) (*[]UserRoleMap, error)
+	Seed() error
 }
 
 var UserRoleMapRepository IUserRoleMapRepository = &userRoleMapRepository{}
@@ -82,24 +85,22 @@ func (r *userRoleMapRepository) FindByRoleID(roleid uuid.UUID) (*[]UserRoleMap, 
 }
 
 //Seed a userrolemap
-// func (r *UserRoleMapRepository) Seed() error {
-// 	userrolemaps := []UserRoleMap{
-// 		{
-// 			UserID:   1,
-// 			RoleID:   1,
-// 			IsActive: true,
-// 		},
-// 		{
-// 			UserID:   1,
-// 			RoleID:   2,
-// 			IsActive: true,
-// 		},
-// 	}
-// 	for _, userrolemap := range userrolemaps {
-// 		err := r.db.Create(&userrolemap).Error
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
+func (r *userRoleMapRepository) Seed() error {
+	users, _ := user.UserRepository.FindAll()
+	roles, _ := role.RoleRepository.FindAll()
+
+	for _, user := range users {
+		for _, role := range roles {
+			userrolemap := UserRoleMap{}
+			userrolemap.UserID = user.ID
+			userrolemap.RoleID = role.ID
+			userrolemap.CreatedAt = "2020-01-01 00:00:00"
+			userrolemap.UpdatedAt = "2020-01-01 00:00:00"
+			err := r.db.FirstOrCreate(&userrolemap).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
