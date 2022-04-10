@@ -95,7 +95,7 @@ func (r *userRepository) GetWithRoles(id uuid.UUID) (*User, error) {
 func (r *userRepository) Seed() {
 	hashedPassword, _ := helpers.HashPassword("123456")
 	users := []User{
-		{Name: "John Doe", Email: "johnDoe@gmail.com", Password: hashedPassword, CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00", IsActive: true}, //TODO: encrypt password
+		{Name: "John Doe", Email: "johnDoe@gmail.com", Password: hashedPassword, CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00", IsActive: true},
 	}
 	for _, user := range users {
 		r.Create(&user)
