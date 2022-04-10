@@ -22,7 +22,7 @@ type IUserRoleMapRepository interface {
 	FindByID(id uuid.UUID) (*UserRoleMap, error)
 	FindByUserID(userid uuid.UUID) (*[]UserRoleMap, error)
 	FindByRoleID(roleid uuid.UUID) (*[]UserRoleMap, error)
-	Seed() error
+	Seed(users []user.User, roles []role.Role) error
 }
 
 var UserRoleMapRepository IUserRoleMapRepository = &userRoleMapRepository{}
@@ -85,10 +85,7 @@ func (r *userRoleMapRepository) FindByRoleID(roleid uuid.UUID) (*[]UserRoleMap, 
 }
 
 //Seed a userrolemap
-func (r *userRoleMapRepository) Seed() error {
-	users, _ := user.UserRepository.FindAll()
-	roles, _ := role.RoleRepository.FindAll()
-
+func (r *userRoleMapRepository) Seed(users []user.User, roles []role.Role) error {
 	for _, user := range users {
 		for _, role := range roles {
 			userrolemap := UserRoleMap{}
@@ -96,7 +93,8 @@ func (r *userRoleMapRepository) Seed() error {
 			userrolemap.RoleID = role.ID
 			userrolemap.CreatedAt = "2020-01-01 00:00:00"
 			userrolemap.UpdatedAt = "2020-01-01 00:00:00"
-			err := r.db.FirstOrCreate(&userrolemap).Error
+			userrolemap.IsActive = true
+			err := r.db.Create(&userrolemap).Error
 			if err != nil {
 				return err
 			}

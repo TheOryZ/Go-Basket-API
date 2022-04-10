@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -92,8 +93,9 @@ func (r *userRepository) GetWithRoles(id uuid.UUID) (*User, error) {
 
 //Seed a user
 func (r *userRepository) Seed() {
+	hashedPassword, _ := helpers.HashPassword("123456")
 	users := []User{
-		{Name: "John Doe", Email: "johnDoe@gmail.com", Password: "123456", CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00", IsActive: true}, //TODO: encrypt password
+		{Name: "John Doe", Email: "johnDoe@gmail.com", Password: hashedPassword, CreatedAt: "2020-01-01 00:00:00", UpdatedAt: "2020-01-01 00:00:00", IsActive: true}, //TODO: encrypt password
 	}
 	for _, user := range users {
 		r.Create(&user)

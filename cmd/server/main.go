@@ -38,8 +38,10 @@ func main() {
 		userRepo.Seed()
 		statusRepo := status.NewStatusRepository(db)
 		statusRepo.Seed()
-		// userrolemapRepo := userrolemap.NewUserRoleMapRepository(db)
-		// userrolemapRepo.Seed()
+		users, _ := userRepo.FindAll()
+		roles, _ := roleRepo.FindAll()
+		userrolemapRepo := userrolemap.NewUserRoleMapRepository(db)
+		userrolemapRepo.Seed(users, roles)
 		log.Println("Migrations done")
 	}
 	log.Println("DB connected")
