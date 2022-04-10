@@ -3,9 +3,10 @@ module github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ
 go 1.18
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/joho/godotenv v1.4.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/crypto v0.0.0-20220408190544-5352b0902921
 	gorm.io/driver/postgres v1.3.4
 	gorm.io/gorm v1.23.4
 )
@@ -22,4 +23,5 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
