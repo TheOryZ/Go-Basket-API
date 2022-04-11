@@ -2,6 +2,7 @@ package dtos
 
 import "github.com/gofrs/uuid"
 
+//ProductListDTO is a struct for listing products
 type ProductListDTO struct {
 	ID               uuid.UUID `json:"id"`
 	Name             string    `json:"name"`
@@ -12,6 +13,7 @@ type ProductListDTO struct {
 	UnitOfStock      int       `json:"unitOfStock"`
 }
 
+//ProductCreateDTO is a struct for creating a new product
 type ProductCreateDTO struct {
 	Name             string  `json:"name" form:"name" binding:"required"`
 	SKU              string  `json:"sku" form:"sku" binding:"required"`
@@ -21,6 +23,7 @@ type ProductCreateDTO struct {
 	UnitOfStock      int     `json:"unitOfStock" form:"unitOfStock" binding:"required"`
 }
 
+//ProductUpdateDTO is a struct for updating a product
 type ProductUpdateDTO struct {
 	ID               uuid.UUID `json:"id" form:"id" binding:"required"`
 	Name             string    `json:"name" form:"name" binding:"required"`
