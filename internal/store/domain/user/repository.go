@@ -20,6 +20,7 @@ type IUserRepository interface {
 	FindAll() ([]User, error)
 	FindByID(id uuid.UUID) (*User, error)
 	FindByName(name string) (*User, error)
+	FindByEmail(email string) (*User, error)
 	Search(s string) ([]User, error)
 	GetWithRoles(id uuid.UUID) (*User, error)
 	Seed()
@@ -74,6 +75,13 @@ func (r *userRepository) FindByID(id uuid.UUID) (*User, error) {
 func (r *userRepository) FindByName(name string) (*User, error) {
 	user := User{}
 	err := r.db.Where("name = ?", name).First(&user).Error
+	return &user, err
+}
+
+//Find a user by email
+func (r *userRepository) FindByEmail(email string) (*User, error) {
+	user := User{}
+	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
