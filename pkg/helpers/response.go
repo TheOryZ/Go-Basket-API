@@ -3,7 +3,7 @@ package helpers
 import "strings"
 
 //Response struct for json response
-type Respose struct {
+type Response struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`
 	Errors  interface{} `json:"errors"`
@@ -14,8 +14,8 @@ type Respose struct {
 type EmptyResponse struct{}
 
 //BuildSuccessResponse for success response
-func BuildSuccessResponse(status bool, message string, data interface{}) Respose {
-	return Respose{
+func BuildSuccessResponse(status bool, message string, data interface{}) Response {
+	return Response{
 		Status:  status,
 		Message: message,
 		Errors:  nil,
@@ -24,9 +24,9 @@ func BuildSuccessResponse(status bool, message string, data interface{}) Respose
 }
 
 //BuildErrorResponse for error response
-func BuildErrorResponse(message string, err string, data interface{}) Respose {
+func BuildErrorResponse(message string, err string, data interface{}) Response {
 	splittedError := strings.Split(err, ":")
-	return Respose{
+	return Response{
 		Status:  false,
 		Message: message,
 		Errors:  splittedError,
