@@ -14,12 +14,9 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/user"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/userrolemap"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/handlers"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-)
-
-var (
-	authHandler handlers.AuthHandler = handlers.NewAuthHandler()
 )
 
 func main() {
@@ -55,6 +52,13 @@ func main() {
 	//gin server
 	router := gin.Default()
 	router.Use(gin.Logger())
+
+	//Services
+	userRepo := user.NewUserRepository(db)
+	jwtService := services.NewJWTService()
+	authService := services.NewAuthService(userRepo)
+	//Handlers
+	authHandler := handlers.NewAuthHandler(authService, jwtService)
 
 	authRoutes := router.Group("api/auth")
 	{

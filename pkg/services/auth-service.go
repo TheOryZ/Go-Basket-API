@@ -4,12 +4,15 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/user"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
+	"github.com/gofrs/uuid"
 )
 
 //AuthService is an interface for AuthService
 type AuthService interface {
 	CreateUser(model dtos.UserCreateDTO) (user.User, error)
 	FindByEmail(email string) (user.User, error)
+	VerifyUser(email string, password string) interface{}
+	IsDuplicateEmail(email string) bool
 }
 
 //authService is an implementation of AuthService
@@ -45,4 +48,26 @@ func (s *authService) FindByEmail(email string) (user.User, error) {
 		return user.User{}, err
 	}
 	return *userModel, nil
+}
+
+//VerifyUser verifies a user
+func (s *authService) VerifyUser(email string, password string) interface{} {
+	userModel, err := s.userRepository.FindByEmail(email)
+	if err != nil {
+		return false
+	}
+	err = helpers.ComparePasswords(userModel.Password, password)
+	if err != nil {
+		return false
+	}
+	return *userModel
+}
+
+//IsDuplicateEmail checks if the email is already in use
+func (s *authService) IsDuplicateEmail(email string) bool {
+	userModel, err := s.userRepository.FindByEmail(email)
+	if err != nil {
+		return false
+	}
+	return userModel.ID != uuid.Nil
 }

@@ -14,7 +14,7 @@ type Respose struct {
 type EmptyResponse struct{}
 
 //BuildSuccessResponse for success response
-func BuildResponse(status bool, message string, data interface{}) Respose {
+func BuildSuccessResponse(status bool, message string, data interface{}) Respose {
 	return Respose{
 		Status:  status,
 		Message: message,

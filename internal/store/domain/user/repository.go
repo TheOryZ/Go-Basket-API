@@ -42,6 +42,14 @@ func (r *userRepository) Create(user *User) error {
 
 //Update a user
 func (r *userRepository) Update(user *User) error {
+	if user.Password != "" {
+		hashedPassword, _ := helpers.HashPassword(user.Password)
+		user.Password = hashedPassword
+	} else {
+		var tempUser User
+		r.db.First(&tempUser, user.ID)
+		user.Password = tempUser.Password
+	}
 	return r.db.Save(user).Error
 }
 
