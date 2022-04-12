@@ -22,7 +22,7 @@ type authService struct {
 	userRepository user.IUserRepository
 }
 
-//NewAuthService creates a new AuthService
+//NewAuthService is a constructor for AuthService
 func NewAuthService(userRepository user.IUserRepository) AuthService {
 	return &authService{userRepository: userRepository}
 }

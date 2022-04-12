@@ -68,6 +68,7 @@ func (h *authHandler) Register(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return
 		}
+		//TODO: Add role to user
 		generatedToken := h.jwtService.GenerateToken(createdUser.ID.String())
 		response := helpers.BuildSuccessResponse(true, "Registration Successful", generatedToken)
 		ctx.JSON(http.StatusOK, response)
