@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/user"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
@@ -29,10 +31,12 @@ func NewAuthService(userRepository user.IUserRepository) AuthService {
 func (s *authService) CreateUser(model dtos.UserCreateDTO) (user.User, error) {
 	hashedPassword, _ := helpers.HashPassword(model.Password)
 	userModel := user.User{
-		Name:     model.Name,
-		Email:    model.Email,
-		Password: hashedPassword,
-		IsActive: true, //TODO: default value should be true
+		Name:      model.Name,
+		Email:     model.Email,
+		Password:  hashedPassword,
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		IsActive:  true, //TODO: default value should be true
 	}
 	err := s.userRepository.Create(&userModel)
 	if err != nil {
@@ -69,5 +73,5 @@ func (s *authService) IsDuplicateEmail(email string) bool {
 	if err != nil {
 		return false
 	}
-	return userModel.ID != uuid.Nil
+	return userModel.ID != uuid.Nil || userModel.Email != ""
 }

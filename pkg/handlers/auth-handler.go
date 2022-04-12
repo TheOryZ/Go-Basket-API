@@ -57,7 +57,7 @@ func (h *authHandler) Register(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	if !h.authService.IsDuplicateEmail(registerDto.Email) {
+	if h.authService.IsDuplicateEmail(registerDto.Email) {
 		response := helpers.BuildErrorResponse("Failed to process request", "Email already exists", helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
