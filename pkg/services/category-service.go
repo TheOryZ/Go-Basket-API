@@ -40,6 +40,7 @@ func (s *categoryService) Create(model dtos.CategoryCreateDTO) (dtos.CategoryLis
 		Name:      model.Name,
 		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		IsActive:  true,
 	}
 	err := s.categoryRepository.Create(&categoryModel)
 	if err != nil {
