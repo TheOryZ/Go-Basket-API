@@ -13,6 +13,7 @@ type Order struct {
 	User      user.User       `json:"user" gorm:"foreignkey:UserID"`
 	ProductID uuid.UUID       `json:"product_id" gorm:"type:uuid;not null"`
 	Product   product.Product `json:"product" gorm:"foreignkey:ProductID"`
+	Quantity  uint            `json:"quantity" gorm:"type:int;not null"`
 	Price     float64         `json:"price" gorm:"type:float;not null"`
 	StatusID  uuid.UUID       `json:"status_id" gorm:"type:uuid;not null"`
 	Status    status.Status   `json:"status" gorm:"foreignkey:StatusID"`
