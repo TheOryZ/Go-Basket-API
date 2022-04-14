@@ -56,14 +56,17 @@ func main() {
 	//Services
 	roleRepo := role.NewRoleRepository(db)
 	userRepo := user.NewUserRepository(db)
+	statusRepo := status.NewStatusRepository(db)
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	userService := services.NewUserService(userRepo)
+	statusService := services.NewStatusService(statusRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	userHandler := handlers.NewUserHandler(userService)
+	statusHandler := handlers.NewStatusHandler(statusService)
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
@@ -84,6 +87,14 @@ func main() {
 		userRoutes.POST("/", userHandler.CreateUser)
 		userRoutes.PUT("/", userHandler.UpdateUser)
 		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+	}
+	statusRoutes := router.Group("api/status")
+	{
+		statusRoutes.GET("/", statusHandler.GetAllStatus)
+		statusRoutes.GET("/:id", statusHandler.GetStatus)
+		statusRoutes.POST("/", statusHandler.CreateStatus)
+		statusRoutes.PUT("/", statusHandler.UpdateStatus)
+		statusRoutes.DELETE("/:id", statusHandler.DeleteStatus)
 	}
 
 	router.Run(":8080")
