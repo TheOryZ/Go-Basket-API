@@ -54,16 +54,26 @@ func main() {
 	router.Use(gin.Logger())
 
 	//Services
+	roleRepo := role.NewRoleRepository(db)
 	userRepo := user.NewUserRepository(db)
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
+	roleService := services.NewRoleService(roleRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
-
+	roleHandler := handlers.NewRoleHandler(roleService)
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/register", authHandler.Register)
+	}
+	roleRoutes := router.Group("api/roles")
+	{
+		roleRoutes.GET("/", roleHandler.GetAllRoles)
+		roleRoutes.GET("/:id", roleHandler.GetRole)
+		roleRoutes.POST("/", roleHandler.CreateRole)
+		roleRoutes.PUT("/:id", roleHandler.UpdateRole)
+		roleRoutes.DELETE("/:id", roleHandler.DeleteRole)
 	}
 
 	router.Run(":8080")
