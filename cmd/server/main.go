@@ -53,23 +53,27 @@ func main() {
 	router := gin.Default()
 	router.Use(gin.Logger())
 
-	//Services
+	//Repositories
 	roleRepo := role.NewRoleRepository(db)
 	userRepo := user.NewUserRepository(db)
 	statusRepo := status.NewStatusRepository(db)
 	categoryRepo := category.NewCategoryRepository(db)
+	productRepo := product.NewProductRepository(db)
+	//Services
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	userService := services.NewUserService(userRepo)
 	statusService := services.NewStatusService(statusRepo)
 	categoryService := services.NewCategoryService(categoryRepo)
+	productService := services.NewProductService(productRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	userHandler := handlers.NewUserHandler(userService)
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	productHandler := handlers.NewProductHandler(productService)
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
@@ -106,6 +110,14 @@ func main() {
 		categoryRoutes.POST("/", categoryHandler.CreateCategory)
 		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
 		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
+	}
+	productRoutes := router.Group("api/products")
+	{
+		productRoutes.GET("/", productHandler.GetAllProducts)
+		productRoutes.GET("/:id", productHandler.GetProduct)
+		productRoutes.POST("/", productHandler.CreateProduct)
+		productRoutes.PUT("/", productHandler.UpdateProduct)
+		productRoutes.DELETE("/:id", productHandler.DeleteProduct)
 	}
 
 	router.Run(":8080")
