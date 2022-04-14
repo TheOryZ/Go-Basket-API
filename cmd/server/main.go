@@ -59,6 +59,8 @@ func main() {
 	statusRepo := status.NewStatusRepository(db)
 	categoryRepo := category.NewCategoryRepository(db)
 	productRepo := product.NewProductRepository(db)
+	cartRepo := cart.NewCartRepository(db)
+	orderRepo := order.NewOrderRepository(db)
 	//Services
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
@@ -67,6 +69,8 @@ func main() {
 	statusService := services.NewStatusService(statusRepo)
 	categoryService := services.NewCategoryService(categoryRepo)
 	productService := services.NewProductService(productRepo)
+	cartService := services.NewCartService(cartRepo)
+	orderService := services.NewOrderService(orderRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 	roleHandler := handlers.NewRoleHandler(roleService)
@@ -74,6 +78,9 @@ func main() {
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	productHandler := handlers.NewProductHandler(productService)
+	cartHandler := handlers.NewCartHandler(cartService, statusService)
+	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
+
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
@@ -118,6 +125,25 @@ func main() {
 		productRoutes.POST("/", productHandler.CreateProduct)
 		productRoutes.PUT("/", productHandler.UpdateProduct)
 		productRoutes.DELETE("/:id", productHandler.DeleteProduct)
+	}
+	cartRoutes := router.Group("api/carts")
+	{
+		cartRoutes.GET("/", cartHandler.GetAllCarts)
+		cartRoutes.GET("/:id", cartHandler.GetCart)
+		cartRoutes.GET("/user/:id", cartHandler.GetCartsByUserID)
+		cartRoutes.GET("/user/:id/in_progress", cartHandler.GetCartsByUserIDInProgress)
+		cartRoutes.POST("/", cartHandler.CreateCart)
+		cartRoutes.PUT("/", cartHandler.UpdateCart)
+		cartRoutes.DELETE("/:id", cartHandler.DeleteCart)
+	}
+	orderRoutes := router.Group("api/orders")
+	{
+		orderRoutes.GET("/", orderHandler.GetAllOrders)
+		orderRoutes.GET("/:id", orderHandler.GetOrder)
+		orderRoutes.GET("/user/:id", orderHandler.GetOrderByUser)
+		orderRoutes.POST("/", orderHandler.CreateOrder)
+		orderRoutes.PUT("/", orderHandler.UpdateOrder)
+		orderRoutes.DELETE("/:id", orderHandler.DeleteOrder)
 	}
 
 	router.Run(":8080")

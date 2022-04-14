@@ -34,6 +34,9 @@ func (r *orderService) Create(model dtos.OrderCreateDTO) error {
 	orderEntity.ID = uuid.Must(uuid.NewV4())
 	orderEntity.UserID = model.UserID
 	orderEntity.StatusID = model.StatusID
+	orderEntity.ProductID = model.ProductID
+	orderEntity.Quantity = model.Quantity
+	orderEntity.Price = model.Price
 	err := r.orderRepository.Create(&orderEntity)
 	if err != nil {
 		return err
@@ -47,6 +50,9 @@ func (r *orderService) Update(model dtos.OrderUpdateDTO) error {
 	orderEntity.ID = model.ID
 	orderEntity.UserID = model.UserID
 	orderEntity.StatusID = model.StatusID
+	orderEntity.ProductID = model.ProductID
+	orderEntity.Quantity = model.Quantity
+	orderEntity.Price = model.Price
 	err := r.orderRepository.Update(&orderEntity)
 	if err != nil {
 		return err
@@ -60,6 +66,9 @@ func (r *orderService) Delete(model dtos.OrderUpdateDTO) error {
 	orderEntity.ID = model.ID
 	orderEntity.UserID = model.UserID
 	orderEntity.StatusID = model.StatusID
+	orderEntity.ProductID = model.ProductID
+	orderEntity.Quantity = model.Quantity
+	orderEntity.Price = model.Price
 	err := r.orderRepository.Delete(&orderEntity)
 	if err != nil {
 		return err
