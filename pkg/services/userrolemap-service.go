@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/userrolemap"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/gofrs/uuid"
@@ -35,6 +37,9 @@ func (r *userRoleMapService) Create(model dtos.UserRoleMapCreateDTO) (dtos.UserR
 	userRoleEntity.ID = uuid.Must(uuid.NewV4())
 	userRoleEntity.UserID = model.UserID
 	userRoleEntity.RoleID = model.RoleID
+	userRoleEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	userRoleEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	userRoleEntity.IsActive = true
 	err := r.userRoleMapRepository.Create(&userRoleEntity)
 	if err != nil {
 		return userRoleMap, err

@@ -18,15 +18,19 @@ type AuthHandler interface {
 
 //authHandler struct for auth handler
 type authHandler struct {
-	authService services.AuthService
-	jwtService  services.JWTService
+	authService        services.AuthService
+	jwtService         services.JWTService
+	roleService        services.RoleService
+	userrolemapService services.UserRoleMapService
 }
 
 //NewAuthHandler returns a new AuthHandler
-func NewAuthHandler(authService services.AuthService, jwtService services.JWTService) AuthHandler {
+func NewAuthHandler(authService services.AuthService, jwtService services.JWTService, roleService services.RoleService, userrolemapService services.UserRoleMapService) AuthHandler {
 	return &authHandler{
-		authService: authService,
-		jwtService:  jwtService,
+		authService:        authService,
+		jwtService:         jwtService,
+		roleService:        roleService,
+		userrolemapService: userrolemapService,
 	}
 }
 
@@ -68,7 +72,16 @@ func (h *authHandler) Register(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return
 		}
-		//TODO: Add role to user
+		memberRole, _ := h.roleService.FindByName("member")
+		_, err = h.userrolemapService.Create(dtos.UserRoleMapCreateDTO{
+			UserID: createdUser.ID,
+			RoleID: memberRole.ID,
+		})
+		if err != nil {
+			response := helpers.BuildErrorResponse("Failed to process request. Failed to assign role", err.Error(), helpers.EmptyResponse{})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+			return
+		}
 		generatedToken := h.jwtService.GenerateToken(createdUser.ID.String())
 		response := helpers.BuildSuccessResponse(true, "Registration Successful", generatedToken)
 		ctx.JSON(http.StatusOK, response)

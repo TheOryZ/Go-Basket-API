@@ -61,6 +61,8 @@ func main() {
 	productRepo := product.NewProductRepository(db)
 	cartRepo := cart.NewCartRepository(db)
 	orderRepo := order.NewOrderRepository(db)
+	//productcategorymapRepo := productcategorymap.NewProductCategoryMapRepository(db)
+	userrolemapRepo := userrolemap.NewUserRoleMapRepository(db)
 	//Services
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
@@ -71,8 +73,10 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	cartService := services.NewCartService(cartRepo)
 	orderService := services.NewOrderService(orderRepo)
+	//productcategorymapService := services.NewProductCategoryMapService(productcategorymapRepo)
+	userrolemapService := services.NewUserRoleMapService(userrolemapRepo)
 	//Handlers
-	authHandler := handlers.NewAuthHandler(authService, jwtService)
+	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	userHandler := handlers.NewUserHandler(userService)
 	statusHandler := handlers.NewStatusHandler(statusService)
