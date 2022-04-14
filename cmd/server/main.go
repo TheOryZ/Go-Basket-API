@@ -57,16 +57,19 @@ func main() {
 	roleRepo := role.NewRoleRepository(db)
 	userRepo := user.NewUserRepository(db)
 	statusRepo := status.NewStatusRepository(db)
+	categoryRepo := category.NewCategoryRepository(db)
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	userService := services.NewUserService(userRepo)
 	statusService := services.NewStatusService(statusRepo)
+	categoryService := services.NewCategoryService(categoryRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	userHandler := handlers.NewUserHandler(userService)
 	statusHandler := handlers.NewStatusHandler(statusService)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
@@ -95,6 +98,14 @@ func main() {
 		statusRoutes.POST("/", statusHandler.CreateStatus)
 		statusRoutes.PUT("/", statusHandler.UpdateStatus)
 		statusRoutes.DELETE("/:id", statusHandler.DeleteStatus)
+	}
+	categoryRoutes := router.Group("api/categories")
+	{
+		categoryRoutes.GET("/", categoryHandler.GetAllCategories)
+		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
+		categoryRoutes.POST("/", categoryHandler.CreateCategory)
+		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
+		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
 	}
 
 	router.Run(":8080")
