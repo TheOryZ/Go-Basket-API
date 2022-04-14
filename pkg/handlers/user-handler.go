@@ -10,112 +10,116 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//RoleHandler interface for role handler
-type RoleHandler interface {
-	GetAllRoles(ctx *gin.Context)
-	GetRole(ctx *gin.Context)
-	CreateRole(ctx *gin.Context)
-	UpdateRole(ctx *gin.Context)
-	DeleteRole(ctx *gin.Context)
+//UserHandler interface for user handler
+type UserHandler interface {
+	GetAllUsers(ctx *gin.Context)
+	GetUser(ctx *gin.Context)
+	CreateUser(ctx *gin.Context)
+	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
-//roleHandler struct for role handler
-type roleHandler struct {
-	roleService services.RoleService
+//userHandler struct for user handler
+type userHandler struct {
+	userService services.UserService
 }
 
-//NewRoleHandler returns a new RoleHandler
-func NewRoleHandler(roleService services.RoleService) RoleHandler {
-	return &roleHandler{
-		roleService: roleService,
+//NewUserHandler returns a new UserHandler
+func NewUserHandler(userService services.UserService) UserHandler {
+	return &userHandler{
+		userService: userService,
 	}
 }
 
-//GetAllRoles returns all roles
-func (h *roleHandler) GetAllRoles(ctx *gin.Context) {
-	model := []dtos.RoleListDTO{}
-	roles, err := h.roleService.FindAll()
+//GetAllUsers returns all users
+func (h *userHandler) GetAllUsers(ctx *gin.Context) {
+	model := []dtos.UserListDTO{}
+	users, err := h.userService.FindAll()
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	for _, v := range roles {
-		model = append(model, dtos.RoleListDTO{
-			ID:   v.ID,
-			Name: v.Name,
+	for _, v := range users {
+		model = append(model, dtos.UserListDTO{
+			ID:    v.ID,
+			Name:  v.Name,
+			Email: v.Email,
 		})
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
 }
 
-//GetRole returns a role
-func (h *roleHandler) GetRole(ctx *gin.Context) {
+//GetUser returns a user
+func (h *userHandler) GetUser(ctx *gin.Context) {
 	id := ctx.Param("id")
-	roleUuid, _ := uuid.FromString(id)
-	role, err := h.roleService.FindByID(roleUuid)
+	userUuid, _ := uuid.FromString(id)
+	user, err := h.userService.FindByID(userUuid)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	response := helpers.BuildSuccessResponse(true, "Successful", dtos.RoleListDTO{
-		ID:   role.ID,
-		Name: role.Name,
+	model := dtos.UserListDTO{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
+	ctx.JSON(http.StatusOK, response)
+}
+
+//CreateUser creates a new user
+func (h *userHandler) CreateUser(ctx *gin.Context) {
+	var user dtos.UserCreateDTO
+	err := ctx.BindJSON(&user)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	newUser, err := h.userService.Create(user)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", dtos.UserListDTO{
+		ID:   newUser.ID,
+		Name: newUser.Name,
 	})
 	ctx.JSON(http.StatusOK, response)
 }
 
-//CreateRole creates a new role
-func (h *roleHandler) CreateRole(ctx *gin.Context) {
-	var role dtos.RoleCreateDTO
-	err := ctx.BindJSON(&role)
+//UpdateUser updates a user
+func (h *userHandler) UpdateUser(ctx *gin.Context) {
+	var user dtos.UserUpdateDTO
+	err := ctx.BindJSON(&user)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	newRole, err := h.roleService.Create(role)
+	updatedUser, err := h.userService.Update(user)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	response := helpers.BuildSuccessResponse(true, "Successful", dtos.RoleListDTO{
-		ID:   newRole.ID,
-		Name: newRole.Name,
+	response := helpers.BuildSuccessResponse(true, "Successful", dtos.UserListDTO{
+		ID:    updatedUser.ID,
+		Name:  updatedUser.Name,
+		Email: updatedUser.Email,
 	})
 	ctx.JSON(http.StatusOK, response)
 }
 
-//UpdateRole updates a role
-func (h *roleHandler) UpdateRole(ctx *gin.Context) {
-	var role dtos.RoleUpdateDTO
-	err := ctx.BindJSON(&role)
-	if err != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	updatedRole, err := h.roleService.Update(role)
-	if err != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	response := helpers.BuildSuccessResponse(true, "Successful", dtos.RoleListDTO{
-		ID:   updatedRole.ID,
-		Name: updatedRole.Name,
-	})
-	ctx.JSON(http.StatusOK, response)
-}
-
-//DeleteRole deletes a role
-func (h *roleHandler) DeleteRole(ctx *gin.Context) {
+//DeleteUser deletes a user
+func (h *userHandler) DeleteUser(ctx *gin.Context) {
 	id := ctx.Param("id")
-	roleUuid, _ := uuid.FromString(id)
-	err := h.roleService.DeleteByID(roleUuid)
+	userUuid, _ := uuid.FromString(id)
+	err := h.userService.DeleteByID(userUuid)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)

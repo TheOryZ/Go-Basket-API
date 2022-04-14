@@ -59,9 +59,11 @@ func main() {
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
+	userService := services.NewUserService(userRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService)
 	roleHandler := handlers.NewRoleHandler(roleService)
+	userHandler := handlers.NewUserHandler(userService)
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
@@ -72,8 +74,16 @@ func main() {
 		roleRoutes.GET("/", roleHandler.GetAllRoles)
 		roleRoutes.GET("/:id", roleHandler.GetRole)
 		roleRoutes.POST("/", roleHandler.CreateRole)
-		roleRoutes.PUT("/:id", roleHandler.UpdateRole)
+		roleRoutes.PUT("/", roleHandler.UpdateRole)
 		roleRoutes.DELETE("/:id", roleHandler.DeleteRole)
+	}
+	userRoutes := router.Group("api/users")
+	{
+		userRoutes.GET("/", userHandler.GetAllUsers)
+		userRoutes.GET("/:id", userHandler.GetUser)
+		userRoutes.POST("/", userHandler.CreateUser)
+		userRoutes.PUT("/", userHandler.UpdateUser)
+		userRoutes.DELETE("/:id", userHandler.DeleteUser)
 	}
 
 	router.Run(":8080")
