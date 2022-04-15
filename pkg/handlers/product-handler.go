@@ -14,6 +14,7 @@ import (
 type ProductHandler interface {
 	GetAllProducts(ctx *gin.Context)
 	GetProduct(ctx *gin.Context)
+	GetProductWithCategories(ctx *gin.Context)
 	CreateProduct(ctx *gin.Context)
 	UpdateProduct(ctx *gin.Context)
 	DeleteProduct(ctx *gin.Context)
@@ -21,13 +22,15 @@ type ProductHandler interface {
 
 // productHandler struct for product handler
 type productHandler struct {
-	productService services.ProductService
+	productService  services.ProductService
+	categoryService services.CategoryService
 }
 
 // NewProductHandler returns a new ProductHandler
-func NewProductHandler(productService services.ProductService) ProductHandler {
+func NewProductHandler(productService services.ProductService, categoryService services.CategoryService) ProductHandler {
 	return &productHandler{
-		productService: productService,
+		productService:  productService,
+		categoryService: categoryService,
 	}
 }
 
@@ -73,6 +76,36 @@ func (h *productHandler) GetProduct(ctx *gin.Context) {
 		Description:      product.Description,
 		Price:            product.Price,
 		UnitOfStock:      product.UnitOfStock,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetProductWithCategories returns a product with categories
+func (h *productHandler) GetProductWithCategories(ctx *gin.Context) {
+	id := ctx.Param("id")
+	productID, _ := uuid.FromString(id)
+	product, err := h.productService.FindByID(productID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	categories, err := h.categoryService.FindByProductID(productID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := dtos.ProductWithCategoriesDTO{
+		ID:               product.ID,
+		Name:             product.Name,
+		SKU:              product.SKU,
+		ShortDescription: product.ShortDescription,
+		Description:      product.Description,
+		Price:            product.Price,
+		UnitOfStock:      product.UnitOfStock,
+		Categories:       categories,
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)

@@ -81,7 +81,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService)
-	productHandler := handlers.NewProductHandler(productService)
+	productHandler := handlers.NewProductHandler(productService, categoryService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
 
@@ -129,6 +129,7 @@ func main() {
 	{
 		productRoutes.GET("/", productHandler.GetAllProducts)
 		productRoutes.GET("/:id", productHandler.GetProduct)
+		productRoutes.GET("/:id/categories", productHandler.GetProductWithCategories)
 		productRoutes.POST("/", productHandler.CreateProduct)
 		productRoutes.PUT("/", productHandler.UpdateProduct)
 		productRoutes.DELETE("/:id", productHandler.DeleteProduct)

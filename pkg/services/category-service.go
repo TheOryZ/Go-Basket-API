@@ -20,7 +20,8 @@ type CategoryService interface {
 	FindByID(id uuid.UUID) (dtos.CategoryListDTO, error)
 	FindByName(name string) (dtos.CategoryListDTO, error)
 	SearchByName(ss string) ([]dtos.CategoryListDTO, error)
-	FindAllWithProducts() ([]dtos.CategoryListDTO, error) //TODO:
+	FindAllWithProducts() ([]dtos.CategoryListDTO, error)
+	FindByProductID(id uuid.UUID) ([]dtos.CategoryListDTO, error)
 }
 
 //categoryService is an implementation of CategoryService
@@ -187,6 +188,22 @@ func (s *categoryService) SearchByName(ss string) ([]dtos.CategoryListDTO, error
 func (s *categoryService) FindAllWithProducts() ([]dtos.CategoryListDTO, error) {
 	listModel := []dtos.CategoryListDTO{}
 	categoryModels, err := s.categoryRepository.FindAllWithProducts()
+	if err != nil {
+		return listModel, err
+	}
+	for _, categoryModel := range categoryModels {
+		listModel = append(listModel, dtos.CategoryListDTO{
+			ID:   categoryModel.ID,
+			Name: categoryModel.Name,
+		})
+	}
+	return listModel, nil
+}
+
+//FindByProductID category
+func (s *categoryService) FindByProductID(id uuid.UUID) ([]dtos.CategoryListDTO, error) {
+	listModel := []dtos.CategoryListDTO{}
+	categoryModels, err := s.categoryRepository.FindByProductID(id)
 	if err != nil {
 		return listModel, err
 	}

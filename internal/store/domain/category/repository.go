@@ -22,6 +22,7 @@ type ICategoryRepository interface {
 	FindByID(id uuid.UUID) (*Category, error)
 	FindByName(name string) (*Category, error)
 	SearchByName(s string) ([]Category, error)
+	FindByProductID(id uuid.UUID) ([]Category, error)
 	FindAllWithProducts() ([]Category, error)
 }
 
@@ -98,9 +99,23 @@ func (r *categoryRepository) SearchByName(s string) ([]Category, error) {
 	return categories, err
 }
 
+//FindByProductID find all categories by product id
+func (r *categoryRepository) FindByProductID(id uuid.UUID) ([]Category, error) {
+	var categories []Category
+	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
+		Where("map.product_id = ?", id).
+		Where("category.deleted_at = ?", nil).
+		Select("category.*").
+		Find(&categories).Error
+	return categories, err
+}
+
 //Get all categories with products //TODO: Check this
 func (r *categoryRepository) FindAllWithProducts() ([]Category, error) {
 	var categories []Category
-	err := r.db.Preload("Products").Where("deleted_at = ?", nil).Find(&categories).Error
+	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
+		Where("category.deleted_at = ?", nil).
+		Select("category.*").
+		Find(&categories).Error
 	return categories, err
 }
