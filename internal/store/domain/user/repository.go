@@ -99,6 +99,7 @@ func (r *userRepository) FindByRoleId(roleId uuid.UUID) ([]User, error) {
 	var users []User
 	err := r.db.Joins("INNER JOIN user_role_map map on map.user_id = users.id").Where("map.role_id = ?", roleId).
 		Where("map.role_id = ?", roleId).
+		Where("deleted_at = ?", nil).
 		Table("users").
 		Select("users.*").
 		Find(&users).Error

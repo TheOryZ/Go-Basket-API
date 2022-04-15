@@ -74,6 +74,7 @@ func (r *roleRepository) FindByUserID(id uuid.UUID) (*[]Role, error) {
 	//err := r.db.Preload("Users").First(&role, id).Error
 	err := r.db.Joins("INNER JOIN user_role_map map on map.role_id = roles.id").
 		Where("map.user_id = ?", id).
+		Where("deleted_at = ?", nil).
 		Table("roles").
 		Select("roles.*").
 		Find(&role).Error
