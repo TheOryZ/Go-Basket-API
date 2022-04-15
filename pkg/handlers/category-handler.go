@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
+	"os"
 
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
@@ -15,7 +17,7 @@ type CategoryHandler interface {
 	GetAllCategories(ctx *gin.Context)
 	GetCategory(ctx *gin.Context)
 	GetCategoryWithProducts(ctx *gin.Context)
-	//CreateBulkCategories(ctx *gin.Context) //TODO: Implement this
+	UploadCsvFile(ctx *gin.Context)
 	CreateCategory(ctx *gin.Context)
 	UpdateCategory(ctx *gin.Context)
 	DeleteCategory(ctx *gin.Context)
@@ -96,7 +98,32 @@ func (h *categoryHandler) GetCategoryWithProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// CreateBulkCategories creates a bulk of categories
+//UploadCsvFile uploads a csv file
+func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
+	file, header, err := ctx.Request.FormFile("file")
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	filename := header.Filename
+	out, err := os.Create("uploads/" + filename)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	filepath := "http://localhost:8080/uploads/" + filename
+	response := helpers.BuildSuccessResponse(true, "Successful", filepath)
+	ctx.JSON(http.StatusOK, response)
+}
 
 // CreateCategory creates a category
 func (h *categoryHandler) CreateCategory(ctx *gin.Context) {

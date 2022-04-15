@@ -122,6 +122,7 @@ func main() {
 		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
 		categoryRoutes.GET("/:id/products", categoryHandler.GetCategoryWithProducts)
 		categoryRoutes.POST("/", categoryHandler.CreateCategory)
+		categoryRoutes.POST("/file", categoryHandler.UploadCsvFile)
 		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
 		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
 	}
