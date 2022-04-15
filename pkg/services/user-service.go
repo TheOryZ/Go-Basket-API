@@ -21,7 +21,6 @@ type UserService interface {
 	FindByEmail(email string) (dtos.UserListDTO, error)
 	FindByRoleId(roleId uuid.UUID) ([]dtos.UserListDTO, error)
 	Search(ss string) ([]dtos.UserListDTO, error)
-	GetWithRoles(id uuid.UUID) (dtos.UserListDTO, error) //TODO: UserWithRolesDTO
 }
 
 //userService is an implementation of UserService
@@ -194,17 +193,4 @@ func (s *userService) Search(ss string) ([]dtos.UserListDTO, error) {
 		})
 	}
 	return userList, nil
-}
-
-//GetWithRoles a user
-func (s *userService) GetWithRoles(id uuid.UUID) (dtos.UserListDTO, error) {
-	userModel, err := s.userRepository.GetWithRoles(id)
-	if err != nil {
-		return dtos.UserListDTO{}, err
-	}
-	return dtos.UserListDTO{
-		ID:    userModel.ID,
-		Name:  userModel.Name,
-		Email: userModel.Email,
-	}, nil
 }

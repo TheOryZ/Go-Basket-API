@@ -23,7 +23,6 @@ type IUserRepository interface {
 	FindByEmail(email string) (*User, error)
 	FindByRoleId(roleId uuid.UUID) ([]User, error)
 	Search(s string) ([]User, error)
-	GetWithRoles(id uuid.UUID) (*User, error)
 	Seed()
 }
 
@@ -111,13 +110,6 @@ func (r *userRepository) Search(s string) ([]User, error) {
 	var users []User
 	err := r.db.Where("name LIKE ? OR email LIKE ?", "%"+s+"%", "%"+s+"%").Find(&users).Error
 	return users, err
-}
-
-//Get with roles relationship //TODO: Check this
-func (r *userRepository) GetWithRoles(id uuid.UUID) (*User, error) {
-	user := User{}
-	err := r.db.Preload("Roles").First(&user, id).Error
-	return &user, err
 }
 
 //Seed a user
