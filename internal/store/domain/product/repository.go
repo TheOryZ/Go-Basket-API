@@ -20,6 +20,7 @@ type IProductRepository interface {
 	FindAllWithPagination(page int, limit int) ([]Product, error)
 	CountAll() (int64, error)
 	FindByID(id uuid.UUID) (*Product, error)
+	FindByCategoryID(id uuid.UUID) ([]Product, error)
 	SearchByName(s string) ([]Product, error)
 }
 
@@ -80,6 +81,17 @@ func (r *productRepository) FindByID(id uuid.UUID) (*Product, error) {
 	product := Product{}
 	err := r.db.First(&product, id).Error
 	return &product, err
+}
+
+//FindByCategoryID find products by category id
+func (r *productRepository) FindByCategoryID(id uuid.UUID) ([]Product, error) {
+	var products []Product
+	err := r.db.Joins("INNER JOIN product_category_map map on map.product_id = products.id").
+		Where("map.category_id = ?", id).
+		Where("deleted_at = ?", nil).
+		Select("products.*").
+		Find(&products).Error
+	return products, err
 }
 
 //Search products by name or SKU

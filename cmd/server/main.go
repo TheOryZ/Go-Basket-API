@@ -80,7 +80,7 @@ func main() {
 	roleHandler := handlers.NewRoleHandler(roleService, userService)
 	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	categoryHandler := handlers.NewCategoryHandler(categoryService, productService)
 	productHandler := handlers.NewProductHandler(productService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
@@ -120,6 +120,7 @@ func main() {
 	{
 		categoryRoutes.GET("/", categoryHandler.GetAllCategories)
 		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
+		categoryRoutes.GET("/:id/products", categoryHandler.GetCategoryWithProducts)
 		categoryRoutes.POST("/", categoryHandler.CreateCategory)
 		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
 		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)

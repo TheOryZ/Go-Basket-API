@@ -14,6 +14,7 @@ import (
 type CategoryHandler interface {
 	GetAllCategories(ctx *gin.Context)
 	GetCategory(ctx *gin.Context)
+	GetCategoryWithProducts(ctx *gin.Context)
 	//CreateBulkCategories(ctx *gin.Context) //TODO: Implement this
 	CreateCategory(ctx *gin.Context)
 	UpdateCategory(ctx *gin.Context)
@@ -23,12 +24,14 @@ type CategoryHandler interface {
 // categoryHandler struct for category handler
 type categoryHandler struct {
 	categoryService services.CategoryService
+	productService  services.ProductService
 }
 
 // NewCategoryHandler returns a new CategoryHandler
-func NewCategoryHandler(categoryService services.CategoryService) CategoryHandler {
+func NewCategoryHandler(categoryService services.CategoryService, productService services.ProductService) CategoryHandler {
 	return &categoryHandler{
 		categoryService: categoryService,
+		productService:  productService,
 	}
 }
 
@@ -65,6 +68,31 @@ func (h *categoryHandler) GetCategory(ctx *gin.Context) {
 		ID:   category.ID,
 		Name: category.Name,
 	})
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetCategoryWithProducts returns a category with products
+func (h *categoryHandler) GetCategoryWithProducts(ctx *gin.Context) {
+	id := ctx.Param("id")
+	categoryID, _ := uuid.FromString(id)
+	category, err := h.categoryService.FindByID(categoryID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	products, err := h.productService.FindByCategoryID(categoryID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := dtos.CategoryWithProductsDTO{
+		ID:       category.ID,
+		Name:     category.Name,
+		Products: products,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
 }
 

@@ -18,6 +18,7 @@ type ProductService interface {
 	FindAllWithPagination(page int, limit int) ([]dtos.ProductListDTO, error)
 	CountAll() (int64, error)
 	FindByID(id uuid.UUID) (dtos.ProductListDTO, error)
+	FindByCategoryID(id uuid.UUID) ([]dtos.ProductListDTO, error)
 	SearchByName(name string) ([]dtos.ProductListDTO, error)
 }
 
@@ -142,6 +143,27 @@ func (s *productService) FindByID(id uuid.UUID) (dtos.ProductListDTO, error) {
 	listModel = dtos.ProductListDTO{
 		ID:   productModel.ID,
 		Name: productModel.Name,
+	}
+	return listModel, nil
+}
+
+//FindByCategoryID a product
+func (s *productService) FindByCategoryID(id uuid.UUID) ([]dtos.ProductListDTO, error) {
+	listModel := []dtos.ProductListDTO{}
+	products, err := s.productRepository.FindByCategoryID(id)
+	if err != nil {
+		return listModel, err
+	}
+	for _, product := range products {
+		listModel = append(listModel, dtos.ProductListDTO{
+			ID:               product.ID,
+			Name:             product.Name,
+			SKU:              product.SKU,
+			ShortDescription: product.ShortDescription,
+			Description:      product.Description,
+			Price:            product.Price,
+			UnitOfStock:      product.UnitOfStock,
+		})
 	}
 	return listModel, nil
 }

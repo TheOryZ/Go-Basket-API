@@ -33,3 +33,15 @@ type ProductUpdateDTO struct {
 	Price            float64   `json:"price" form:"price" binding:"required"`
 	UnitOfStock      int       `json:"unitOfStock" form:"unitOfStock" binding:"required"`
 }
+
+//ProductWithCategoriesDTO is a struct for listing products with categories
+type ProductWithCategoriesDTO struct {
+	ID               uuid.UUID         `json:"id"`
+	Name             string            `json:"name"`
+	SKU              string            `json:"sku"`
+	ShortDescription string            `json:"shortDescription"`
+	Description      string            `json:"description"`
+	Price            float64           `json:"price"`
+	UnitOfStock      int               `json:"unitOfStock"`
+	Categories       []CategoryListDTO `json:"categories"`
+}
