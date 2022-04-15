@@ -18,3 +18,10 @@ type CategoryUpdateDTO struct {
 	ID   uuid.UUID `json:"id" form:"id" binding:"required"`
 	Name string    `json:"name" form:"name" binding:"required"`
 }
+
+//CategoryWithProductsDTO is a struct for listing categories with products
+type CategoryWithProductsDTO struct {
+	ID       uuid.UUID        `json:"id"`
+	Name     string           `json:"name"`
+	Products []ProductListDTO `json:"products"`
+}

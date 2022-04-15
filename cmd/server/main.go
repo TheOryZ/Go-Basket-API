@@ -78,7 +78,7 @@ func main() {
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
 	roleHandler := handlers.NewRoleHandler(roleService)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 	productHandler := handlers.NewProductHandler(productService)
@@ -102,6 +102,7 @@ func main() {
 	{
 		userRoutes.GET("/", userHandler.GetAllUsers)
 		userRoutes.GET("/:id", userHandler.GetUser)
+		userRoutes.GET("/:id/roles", userHandler.GetUserWithRoles)
 		userRoutes.POST("/", userHandler.CreateUser)
 		userRoutes.PUT("/", userHandler.UpdateUser)
 		userRoutes.DELETE("/:id", userHandler.DeleteUser)

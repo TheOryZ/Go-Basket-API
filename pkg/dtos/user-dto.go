@@ -23,3 +23,11 @@ type UserUpdateDTO struct {
 	Email    string    `json:"email" form:"email" binding:"required" validate:"email"`
 	Password string    `json:"password" form:"password" binding:"required" validate:"min=6"`
 }
+
+//UserWithRolesDTO is a struct for listing users with roles
+type UserWithRolesDTO struct {
+	ID    uuid.UUID     `json:"id"`
+	Name  string        `json:"name"`
+	Email string        `json:"email"`
+	Roles []RoleListDTO `json:"roles"`
+}

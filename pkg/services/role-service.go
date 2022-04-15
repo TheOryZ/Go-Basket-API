@@ -16,6 +16,7 @@ type RoleService interface {
 	DeleteByID(id uuid.UUID) error
 	FindAll() ([]dtos.RoleListDTO, error)
 	FindByID(id uuid.UUID) (dtos.RoleListDTO, error)
+	FindByUserID(id uuid.UUID) ([]dtos.RoleListDTO, error)
 	FindByName(name string) (dtos.RoleListDTO, error)
 }
 
@@ -119,6 +120,22 @@ func (s *roleService) FindByID(id uuid.UUID) (dtos.RoleListDTO, error) {
 	listModel = dtos.RoleListDTO{
 		ID:   roleModel.ID,
 		Name: roleModel.Name,
+	}
+	return listModel, nil
+}
+
+//FindByUserID a role
+func (s *roleService) FindByUserID(id uuid.UUID) ([]dtos.RoleListDTO, error) {
+	listModel := []dtos.RoleListDTO{}
+	roleModel, err := s.roleRepository.FindByUserID(id)
+	if err != nil {
+		return listModel, err
+	}
+	for _, role := range *roleModel {
+		listModel = append(listModel, dtos.RoleListDTO{
+			ID:   role.ID,
+			Name: role.Name,
+		})
 	}
 	return listModel, nil
 }

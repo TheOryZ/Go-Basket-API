@@ -18,6 +18,7 @@ type IRoleRepository interface {
 	DeleteByID(id uuid.UUID) error
 	FindAll() ([]Role, error)
 	FindByID(id uuid.UUID) (*Role, error)
+	FindByUserID(id uuid.UUID) (*[]Role, error)
 	FindByName(name string) (*Role, error)
 	Seed() error
 }
@@ -67,17 +68,22 @@ func (r *roleRepository) FindByID(id uuid.UUID) (*Role, error) {
 	return &role, err
 }
 
+//Find a role by user id
+func (r *roleRepository) FindByUserID(id uuid.UUID) (*[]Role, error) {
+	role := []Role{}
+	//err := r.db.Preload("Users").First(&role, id).Error
+	err := r.db.Joins("INNER JOIN user_role_map map on map.role_id = roles.id").
+		Where("map.user_id = ?", id).
+		Table("roles").
+		Select("roles.*").
+		Find(&role).Error
+	return &role, err
+}
+
 //Find a role by name
 func (r *roleRepository) FindByName(name string) (*Role, error) {
 	role := Role{}
 	err := r.db.Where("name = ?", name).First(&role).Error
-	return &role, err
-}
-
-//Get with users relationship  //TODO: Check this
-func (r *roleRepository) GetWithUsers(id uuid.UUID) (*Role, error) {
-	role := Role{}
-	err := r.db.Preload("Users").First(&role, id).Error
 	return &role, err
 }
 

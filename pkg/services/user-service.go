@@ -178,7 +178,7 @@ func (s *userService) Search(ss string) ([]dtos.UserListDTO, error) {
 	return userList, nil
 }
 
-//GetWithRoles a user //TODO: UserWithRolesDTO
+//GetWithRoles a user
 func (s *userService) GetWithRoles(id uuid.UUID) (dtos.UserListDTO, error) {
 	userModel, err := s.userRepository.GetWithRoles(id)
 	if err != nil {

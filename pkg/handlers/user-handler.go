@@ -14,6 +14,7 @@ import (
 type UserHandler interface {
 	GetAllUsers(ctx *gin.Context)
 	GetUser(ctx *gin.Context)
+	GetUserWithRoles(ctx *gin.Context)
 	CreateUser(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
@@ -22,12 +23,14 @@ type UserHandler interface {
 //userHandler struct for user handler
 type userHandler struct {
 	userService services.UserService
+	roleService services.RoleService
 }
 
 //NewUserHandler returns a new UserHandler
-func NewUserHandler(userService services.UserService) UserHandler {
+func NewUserHandler(userService services.UserService, roleService services.RoleService) UserHandler {
 	return &userHandler{
 		userService: userService,
+		roleService: roleService,
 	}
 }
 
@@ -65,6 +68,32 @@ func (h *userHandler) GetUser(ctx *gin.Context) {
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetUserWithRoles returns a user with roles
+func (h *userHandler) GetUserWithRoles(ctx *gin.Context) {
+	id := ctx.Param("id")
+	userUuid, _ := uuid.FromString(id)
+	user, err := h.userService.FindByID(userUuid)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	roles, err := h.roleService.FindByUserID(userUuid)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := dtos.UserWithRolesDTO{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
+		Roles: roles,
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
