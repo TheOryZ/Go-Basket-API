@@ -19,6 +19,7 @@ type UserService interface {
 	FindByID(id uuid.UUID) (dtos.UserListDTO, error)
 	FindByName(name string) (dtos.UserListDTO, error)
 	FindByEmail(email string) (dtos.UserListDTO, error)
+	FindByRoleId(roleId uuid.UUID) ([]dtos.UserListDTO, error)
 	Search(ss string) ([]dtos.UserListDTO, error)
 	GetWithRoles(id uuid.UUID) (dtos.UserListDTO, error) //TODO: UserWithRolesDTO
 }
@@ -159,6 +160,23 @@ func (s *userService) FindByEmail(email string) (dtos.UserListDTO, error) {
 		Name:  userModel.Name,
 		Email: userModel.Email,
 	}, nil
+}
+
+//FindByRoleId a user
+func (s *userService) FindByRoleId(roleId uuid.UUID) ([]dtos.UserListDTO, error) {
+	listModel := []dtos.UserListDTO{}
+	userModels, err := s.userRepository.FindByRoleId(roleId)
+	if err != nil {
+		return nil, err
+	}
+	for _, userModel := range userModels {
+		listModel = append(listModel, dtos.UserListDTO{
+			ID:    userModel.ID,
+			Name:  userModel.Name,
+			Email: userModel.Email,
+		})
+	}
+	return listModel, nil
 }
 
 //Search users

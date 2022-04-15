@@ -14,6 +14,7 @@ import (
 type RoleHandler interface {
 	GetAllRoles(ctx *gin.Context)
 	GetRole(ctx *gin.Context)
+	GetRoleWithUsers(ctx *gin.Context)
 	CreateRole(ctx *gin.Context)
 	UpdateRole(ctx *gin.Context)
 	DeleteRole(ctx *gin.Context)
@@ -22,12 +23,14 @@ type RoleHandler interface {
 //roleHandler struct for role handler
 type roleHandler struct {
 	roleService services.RoleService
+	userService services.UserService
 }
 
 //NewRoleHandler returns a new RoleHandler
-func NewRoleHandler(roleService services.RoleService) RoleHandler {
+func NewRoleHandler(roleService services.RoleService, userService services.UserService) RoleHandler {
 	return &roleHandler{
 		roleService: roleService,
+		userService: userService,
 	}
 }
 
@@ -64,6 +67,31 @@ func (h *roleHandler) GetRole(ctx *gin.Context) {
 		ID:   role.ID,
 		Name: role.Name,
 	})
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetRoleWithUsers returns a role with users
+func (h *roleHandler) GetRoleWithUsers(ctx *gin.Context) {
+	id := ctx.Param("id")
+	roleUuid, _ := uuid.FromString(id)
+	role, err := h.roleService.FindByID(roleUuid)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	users, err := h.userService.FindByRoleId(roleUuid)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := dtos.RoleWithUserDTO{
+		ID:   role.ID,
+		Name: role.Name,
+		User: users,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
 }
 

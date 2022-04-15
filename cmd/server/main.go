@@ -77,7 +77,7 @@ func main() {
 	userrolemapService := services.NewUserRoleMapService(userrolemapRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
-	roleHandler := handlers.NewRoleHandler(roleService)
+	roleHandler := handlers.NewRoleHandler(roleService, userService)
 	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
@@ -94,6 +94,7 @@ func main() {
 	{
 		roleRoutes.GET("/", roleHandler.GetAllRoles)
 		roleRoutes.GET("/:id", roleHandler.GetRole)
+		roleRoutes.GET("/:id/users", roleHandler.GetRoleWithUsers)
 		roleRoutes.POST("/", roleHandler.CreateRole)
 		roleRoutes.PUT("/", roleHandler.UpdateRole)
 		roleRoutes.DELETE("/:id", roleHandler.DeleteRole)

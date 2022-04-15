@@ -21,6 +21,7 @@ type IUserRepository interface {
 	FindByID(id uuid.UUID) (*User, error)
 	FindByName(name string) (*User, error)
 	FindByEmail(email string) (*User, error)
+	FindByRoleId(roleId uuid.UUID) ([]User, error)
 	Search(s string) ([]User, error)
 	GetWithRoles(id uuid.UUID) (*User, error)
 	Seed()
@@ -91,6 +92,17 @@ func (r *userRepository) FindByEmail(email string) (*User, error) {
 	user := User{}
 	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
+}
+
+//FindByRoleId find users by role id
+func (r *userRepository) FindByRoleId(roleId uuid.UUID) ([]User, error) {
+	var users []User
+	err := r.db.Joins("INNER JOIN user_role_map map on map.user_id = users.id").Where("map.role_id = ?", roleId).
+		Where("map.role_id = ?", roleId).
+		Table("users").
+		Select("users.*").
+		Find(&users).Error
+	return users, err
 }
 
 //Search users by name or email
