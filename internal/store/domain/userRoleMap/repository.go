@@ -73,14 +73,14 @@ func (r *userRoleMapRepository) FindByID(id uuid.UUID) (*UserRoleMap, error) {
 //Find userrolemap by userid
 func (r *userRoleMapRepository) FindByUserID(userid uuid.UUID) (*[]UserRoleMap, error) {
 	userrolemap := []UserRoleMap{}
-	err := r.db.Where("user_id = ? AND deleted_at = ?", userid, nil).Find(&userrolemap).Error
+	err := r.db.Where("user_id = ? AND deleted_at is null", userid).Find(&userrolemap).Error
 	return &userrolemap, err
 }
 
 //Find userrolemap by roleid
 func (r *userRoleMapRepository) FindByRoleID(roleid uuid.UUID) (*[]UserRoleMap, error) {
 	userrolemap := []UserRoleMap{}
-	err := r.db.Where("role_id = ? AND deleted_at = ?", roleid, nil).Find(&userrolemap).Error
+	err := r.db.Where("role_id = ? AND deleted_at is null", roleid).Find(&userrolemap).Error
 	return &userrolemap, err
 }
 

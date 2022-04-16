@@ -13,6 +13,7 @@ import (
 // ProductHandler interface for product handler
 type ProductHandler interface {
 	GetAllProducts(ctx *gin.Context)
+	GetAllProductsPaging(ctx *gin.Context)
 	GetProduct(ctx *gin.Context)
 	GetProductWithCategories(ctx *gin.Context)
 	CreateProduct(ctx *gin.Context)
@@ -43,6 +44,34 @@ func (h *productHandler) GetAllProducts(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
+	for _, v := range products {
+		model = append(model, dtos.ProductListDTO{
+			ID:               v.ID,
+			Name:             v.Name,
+			SKU:              v.SKU,
+			ShortDescription: v.ShortDescription,
+			Description:      v.Description,
+			Price:            v.Price,
+			UnitOfStock:      v.UnitOfStock,
+		})
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetAllProductsPaging returns all products with paging
+func (h *productHandler) GetAllProductsPaging(ctx *gin.Context) {
+	page := ctx.Query("page")
+	limit := ctx.Query("limit")
+	pageInt, _ := helpers.StringToInt(page)
+	limitInt, _ := helpers.StringToInt(limit)
+	products, err := h.productService.FindAllWithPagination(pageInt, limitInt)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := []dtos.ProductListDTO{}
 	for _, v := range products {
 		model = append(model, dtos.ProductListDTO{
 			ID:               v.ID,

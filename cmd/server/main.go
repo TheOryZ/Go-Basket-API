@@ -121,6 +121,7 @@ func main() {
 	categoryRoutes := router.Group("api/categories")
 	{
 		categoryRoutes.GET("/", categoryHandler.GetAllCategories)
+		categoryRoutes.GET("/pagign", categoryHandler.GetAllCategoriesPaging)
 		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
 		categoryRoutes.GET("/:id/products", categoryHandler.GetCategoryWithProducts)
 		categoryRoutes.POST("/", categoryHandler.CreateCategory)
@@ -131,6 +132,7 @@ func main() {
 	productRoutes := router.Group("api/products")
 	{
 		productRoutes.GET("/", productHandler.GetAllProducts)
+		productRoutes.GET("/pagign", productHandler.GetAllProductsPaging)
 		productRoutes.GET("/:id", productHandler.GetProduct)
 		productRoutes.GET("/:id/categories", productHandler.GetProductWithCategories)
 		productRoutes.POST("/", productHandler.CreateProduct)

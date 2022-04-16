@@ -70,13 +70,13 @@ func (r *cartRepository) FindByID(id uuid.UUID) (*Cart, error) {
 //Find carts by user id
 func (r *cartRepository) FindByUserID(userID uuid.UUID) ([]Cart, error) {
 	var carts []Cart
-	err := r.db.Where("user_id = ? AND deleted_at = ?", userID, nil).Find(&carts).Error
+	err := r.db.Where("user_id = ? AND deleted_at is null", userID).Find(&carts).Error
 	return carts, err
 }
 
 //Find carts by user id with status //TODO: Chack this
 func (r *cartRepository) FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Cart, error) {
 	var carts []Cart
-	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at = ?", userID, statusID, nil).Find(&carts).Error
+	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at is null", userID, statusID).Find(&carts).Error
 	return carts, err
 }

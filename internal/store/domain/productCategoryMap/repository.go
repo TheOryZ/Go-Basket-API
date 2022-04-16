@@ -70,13 +70,13 @@ func (r *productCategoryMapRepository) FindByID(id uuid.UUID) (*ProductCategoryM
 //Find a productcategorymap by productid
 func (r *productCategoryMapRepository) FindByProductID(productid uuid.UUID) ([]ProductCategoryMap, error) {
 	var productcategorymaps []ProductCategoryMap
-	err := r.db.Where("productid = ? AND deleted_at = ?", productid, nil).Find(&productcategorymaps).Error
+	err := r.db.Where("productid = ? AND deleted_at is null", productid).Find(&productcategorymaps).Error
 	return productcategorymaps, err
 }
 
 //Find a productcategorymap by categoryid
 func (r *productCategoryMapRepository) FindByCategoryID(categoryid uuid.UUID) ([]ProductCategoryMap, error) {
 	var productcategorymaps []ProductCategoryMap
-	err := r.db.Where("categoryid = ? AND deleted_at = ?", categoryid, nil).Find(&productcategorymaps).Error
+	err := r.db.Where("categoryid = ? AND deleted_at is null", categoryid).Find(&productcategorymaps).Error
 	return productcategorymaps, err
 }

@@ -70,13 +70,13 @@ func (r *orderRepository) FindByID(id uuid.UUID) (*Order, error) {
 //Find orders by user id
 func (r *orderRepository) FindByUserID(userID uuid.UUID) ([]Order, error) {
 	var orders []Order
-	err := r.db.Where("user_id = ? AND deleted_at = ?", userID, nil).Find(&orders).Error
+	err := r.db.Where("user_id = ? AND deleted_at is null", userID).Find(&orders).Error
 	return orders, err
 }
 
 //Find orders by user id with status //TODO: Chack this
 func (r *orderRepository) FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Order, error) {
 	var orders []Order
-	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at = ?", userID, statusID, nil).Find(&orders).Error
+	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at is null", userID, statusID).Find(&orders).Error
 	return orders, err
 }

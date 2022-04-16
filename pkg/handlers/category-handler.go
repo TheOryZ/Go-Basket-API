@@ -14,6 +14,7 @@ import (
 // CategoryHandler interface for category handler
 type CategoryHandler interface {
 	GetAllCategories(ctx *gin.Context)
+	GetAllCategoriesPaging(ctx *gin.Context)
 	GetCategory(ctx *gin.Context)
 	GetCategoryWithProducts(ctx *gin.Context)
 	UploadCsvFile(ctx *gin.Context)
@@ -45,6 +46,29 @@ func (h *categoryHandler) GetAllCategories(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
+	for _, v := range categories {
+		model = append(model, dtos.CategoryListDTO{
+			ID:   v.ID,
+			Name: v.Name,
+		})
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
+	ctx.JSON(http.StatusOK, response)
+}
+
+//GetAllCategoriesPaging returns all categories with paging
+func (h *categoryHandler) GetAllCategoriesPaging(ctx *gin.Context) {
+	page := ctx.Query("page")
+	limit := ctx.Query("limit")
+	pageInt, _ := helpers.StringToInt(page)
+	limitInt, _ := helpers.StringToInt(limit)
+	categories, err := h.categoryService.FindAllWithPagination(pageInt, limitInt)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model := []dtos.CategoryListDTO{}
 	for _, v := range categories {
 		model = append(model, dtos.CategoryListDTO{
 			ID:   v.ID,

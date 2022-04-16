@@ -60,21 +60,21 @@ func (r *categoryRepository) DeleteByID(id uuid.UUID) error {
 //Find all categories
 func (r *categoryRepository) FindAll() ([]Category, error) {
 	var categories []Category
-	err := r.db.Where("deleted_at = ?", nil).Find(&categories).Error
+	err := r.db.Where("deleted_at is null").Find(&categories).Error
 	return categories, err
 }
 
 //Find all with pagination  //TODO: check this
 func (r *categoryRepository) FindAllWithPagination(page int, limit int) ([]Category, error) {
 	var categories []Category
-	err := r.db.Where("deleted_at = ?", nil).Offset(page).Limit(limit).Find(&categories).Error
+	err := r.db.Where("deleted_at is null").Offset(page).Limit(limit).Find(&categories).Error
 	return categories, err
 }
 
 //Count all categories
 func (r *categoryRepository) CountAll() (int64, error) {
 	var count int64
-	err := r.db.Model(&Category{}).Where("deleted_at = ?", nil).Count(&count).Error
+	err := r.db.Model(&Category{}).Where("deleted_at is null").Count(&count).Error
 	return count, err
 }
 
@@ -104,7 +104,7 @@ func (r *categoryRepository) FindByProductID(id uuid.UUID) ([]Category, error) {
 	var categories []Category
 	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
 		Where("map.product_id = ?", id).
-		Where("category.deleted_at = ?", nil).
+		Where("category.deleted_at is null").
 		Select("category.*").
 		Find(&categories).Error
 	return categories, err
@@ -114,7 +114,7 @@ func (r *categoryRepository) FindByProductID(id uuid.UUID) ([]Category, error) {
 func (r *categoryRepository) FindAllWithProducts() ([]Category, error) {
 	var categories []Category
 	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
-		Where("category.deleted_at = ?", nil).
+		Where("category.deleted_at is null").
 		Select("category.*").
 		Find(&categories).Error
 	return categories, err
