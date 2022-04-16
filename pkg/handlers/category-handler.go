@@ -106,13 +106,26 @@ func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
 		return
 	}
 	filename := filepath.Base(file.Filename)
-	//path := "../uploads/" + filename
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	response := helpers.BuildSuccessResponse(true, "Successful", helpers.EmptyResponse{})
+	//ReadToCsv
+	records, err := helpers.ReadToCsv("./csvCategories.csv")
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	//Create categories with records
+	categoryListModel, err := h.categoryService.CreateAll(*records)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", categoryListModel)
 	ctx.JSON(http.StatusOK, response)
 }
 

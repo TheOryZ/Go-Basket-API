@@ -11,6 +11,7 @@ import (
 //CategoryService is an interface for CategoryService
 type CategoryService interface {
 	Create(model dtos.CategoryCreateDTO) (dtos.CategoryListDTO, error)
+	CreateAll(models []dtos.CategoryCreateDTO) ([]dtos.CategoryListDTO, error)
 	Update(model dtos.CategoryUpdateDTO) (dtos.CategoryListDTO, error)
 	Delete(model dtos.CategoryUpdateDTO) error
 	DeleteByID(id uuid.UUID) error
@@ -50,6 +51,28 @@ func (s *categoryService) Create(model dtos.CategoryCreateDTO) (dtos.CategoryLis
 	listModel = dtos.CategoryListDTO{
 		ID:   categoryModel.ID,
 		Name: categoryModel.Name,
+	}
+	return listModel, nil
+}
+
+//CreateAll category
+func (s *categoryService) CreateAll(models []dtos.CategoryCreateDTO) ([]dtos.CategoryListDTO, error) {
+	listModel := []dtos.CategoryListDTO{}
+	for _, model := range models {
+		categoryModel := category.Category{
+			Name:      model.Name,
+			CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+			UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+			IsActive:  true,
+		}
+		err := s.categoryRepository.Create(&categoryModel)
+		if err != nil {
+			return listModel, err
+		}
+		listModel = append(listModel, dtos.CategoryListDTO{
+			ID:   categoryModel.ID,
+			Name: categoryModel.Name,
+		})
 	}
 	return listModel, nil
 }
