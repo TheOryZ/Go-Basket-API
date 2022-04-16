@@ -36,18 +36,28 @@ func NewProductService(productRepository product.IProductRepository) ProductServ
 func (s *productService) Create(model dtos.ProductCreateDTO) (dtos.ProductListDTO, error) {
 	listModel := dtos.ProductListDTO{}
 	productModel := product.Product{
-		Name:      model.Name,
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		IsActive:  true,
+		Name:             model.Name,
+		SKU:              model.SKU,
+		ShortDescription: model.ShortDescription,
+		Description:      model.Description,
+		Price:            model.Price,
+		UnitOfStock:      model.UnitOfStock,
+		CreatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		IsActive:         true,
 	}
 	err := s.productRepository.Create(&productModel)
 	if err != nil {
 		return listModel, err
 	}
 	listModel = dtos.ProductListDTO{
-		ID:   productModel.ID,
-		Name: productModel.Name,
+		ID:               productModel.ID,
+		Name:             productModel.Name,
+		SKU:              productModel.SKU,
+		ShortDescription: productModel.ShortDescription,
+		Description:      productModel.Description,
+		Price:            productModel.Price,
+		UnitOfStock:      productModel.UnitOfStock,
 	}
 	return listModel, nil
 }
@@ -56,11 +66,16 @@ func (s *productService) Create(model dtos.ProductCreateDTO) (dtos.ProductListDT
 func (s *productService) Update(model dtos.ProductUpdateDTO) (dtos.ProductListDTO, error) {
 	listModel := dtos.ProductListDTO{}
 	productModel := product.Product{
-		ID:        model.ID,
-		Name:      model.Name,
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		IsActive:  true,
+		ID:               model.ID,
+		Name:             model.Name,
+		SKU:              model.SKU,
+		ShortDescription: model.ShortDescription,
+		Description:      model.Description,
+		Price:            model.Price,
+		UnitOfStock:      model.UnitOfStock,
+		CreatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		IsActive:         true,
 	}
 	err := s.productRepository.Update(&productModel)
 	if err != nil {
@@ -76,11 +91,16 @@ func (s *productService) Update(model dtos.ProductUpdateDTO) (dtos.ProductListDT
 //Delete a product
 func (s *productService) Delete(model dtos.ProductUpdateDTO) error {
 	productModel := product.Product{
-		ID:        model.ID,
-		Name:      model.Name,
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		IsActive:  true,
+		ID:               model.ID,
+		Name:             model.Name,
+		SKU:              model.SKU,
+		ShortDescription: model.ShortDescription,
+		Description:      model.Description,
+		Price:            model.Price,
+		UnitOfStock:      model.UnitOfStock,
+		CreatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:        time.Now().Format("2006-01-02 15:04:05"),
+		IsActive:         true,
 	}
 	err := s.productRepository.Delete(&productModel)
 	return err
@@ -104,8 +124,13 @@ func (s *productService) FindAll() ([]dtos.ProductListDTO, error) {
 	}
 	for _, product := range products {
 		listModel = append(listModel, dtos.ProductListDTO{
-			ID:   product.ID,
-			Name: product.Name,
+			ID:               product.ID,
+			Name:             product.Name,
+			SKU:              product.SKU,
+			ShortDescription: product.ShortDescription,
+			Description:      product.Description,
+			Price:            product.Price,
+			UnitOfStock:      product.UnitOfStock,
 		})
 	}
 	return listModel, nil
@@ -120,8 +145,13 @@ func (s *productService) FindAllWithPagination(page int, limit int) ([]dtos.Prod
 	}
 	for _, product := range products {
 		listModel = append(listModel, dtos.ProductListDTO{
-			ID:   product.ID,
-			Name: product.Name,
+			ID:               product.ID,
+			Name:             product.Name,
+			SKU:              product.SKU,
+			ShortDescription: product.ShortDescription,
+			Description:      product.Description,
+			Price:            product.Price,
+			UnitOfStock:      product.UnitOfStock,
 		})
 	}
 	return listModel, nil
@@ -141,8 +171,13 @@ func (s *productService) FindByID(id uuid.UUID) (dtos.ProductListDTO, error) {
 		return listModel, err
 	}
 	listModel = dtos.ProductListDTO{
-		ID:   productModel.ID,
-		Name: productModel.Name,
+		ID:               productModel.ID,
+		Name:             productModel.Name,
+		SKU:              productModel.SKU,
+		ShortDescription: productModel.ShortDescription,
+		Description:      productModel.Description,
+		Price:            productModel.Price,
+		UnitOfStock:      productModel.UnitOfStock,
 	}
 	return listModel, nil
 }
@@ -177,8 +212,13 @@ func (s *productService) SearchByName(name string) ([]dtos.ProductListDTO, error
 	}
 	for _, product := range products {
 		listModel = append(listModel, dtos.ProductListDTO{
-			ID:   product.ID,
-			Name: product.Name,
+			ID:               product.ID,
+			Name:             product.Name,
+			SKU:              product.SKU,
+			ShortDescription: product.ShortDescription,
+			Description:      product.Description,
+			Price:            product.Price,
+			UnitOfStock:      product.UnitOfStock,
 		})
 	}
 	return listModel, nil
