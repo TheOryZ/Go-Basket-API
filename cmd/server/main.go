@@ -62,7 +62,7 @@ func main() {
 	productRepo := product.NewProductRepository(db)
 	cartRepo := cart.NewCartRepository(db)
 	orderRepo := order.NewOrderRepository(db)
-	//productcategorymapRepo := productcategorymap.NewProductCategoryMapRepository(db)
+	productcategorymapRepo := productcategorymap.NewProductCategoryMapRepository(db)
 	userrolemapRepo := userrolemap.NewUserRoleMapRepository(db)
 	//Services
 	jwtService := services.NewJWTService()
@@ -74,7 +74,7 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	cartService := services.NewCartService(cartRepo)
 	orderService := services.NewOrderService(orderRepo)
-	//productcategorymapService := services.NewProductCategoryMapService(productcategorymapRepo)
+	productcategorymapService := services.NewProductCategoryMapService(productcategorymapRepo)
 	userrolemapService := services.NewUserRoleMapService(userrolemapRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
@@ -85,6 +85,7 @@ func main() {
 	productHandler := handlers.NewProductHandler(productService, categoryService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
+	productcategorymapHandler := handlers.NewProductCategoryMapHandler(productcategorymapService, productService, categoryService)
 
 	router.StaticFS("/uploads", http.Dir("../../uploads"))
 	authRoutes := router.Group("api/auth")
@@ -138,6 +139,14 @@ func main() {
 		productRoutes.POST("/", productHandler.CreateProduct)
 		productRoutes.PUT("/", productHandler.UpdateProduct)
 		productRoutes.DELETE("/:id", productHandler.DeleteProduct)
+	}
+	productCategoryMapRoutes := router.Group("api/productcategorymaps")
+	{
+		productCategoryMapRoutes.GET("/", productcategorymapHandler.GetAllProductCategoryMaps)
+		productCategoryMapRoutes.GET("/:id", productcategorymapHandler.GetProductCategoryMap)
+		productCategoryMapRoutes.POST("/", productcategorymapHandler.CreateProductCategoryMap)
+		productCategoryMapRoutes.PUT("/", productcategorymapHandler.UpdateProductCategoryMap)
+		productCategoryMapRoutes.DELETE("/:id", productcategorymapHandler.DeleteProductCategoryMap)
 	}
 	cartRoutes := router.Group("api/carts")
 	{

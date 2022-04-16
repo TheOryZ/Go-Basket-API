@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/productcategorymap"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/gofrs/uuid"
@@ -8,14 +10,14 @@ import (
 
 //ProductCategoryMapService is an interface for ProductCategoryMapService
 type ProductCategoryMapService interface {
-	Create(model dtos.ProductCategoryMapCreateDTO) (dtos.ProductCategoryMapListDTO, error)
-	Update(model dtos.ProductCategoryMapUpdateDTO) (dtos.ProductCategoryMapListDTO, error)
+	Create(model dtos.ProductCategoryMapCreateDTO) (productcategorymap.ProductCategoryMap, error)
+	Update(model dtos.ProductCategoryMapUpdateDTO) (productcategorymap.ProductCategoryMap, error)
 	Delete(model dtos.ProductCategoryMapUpdateDTO) error
 	DeleteByID(id uuid.UUID) error
-	FindAll() ([]dtos.ProductCategoryMapListDTO, error)
-	FindByID(id uuid.UUID) (dtos.ProductCategoryMapListDTO, error)
-	FindByProductID(productID uuid.UUID) ([]dtos.ProductCategoryMapListDTO, error)
-	FindByCategoryID(categoryID uuid.UUID) ([]dtos.ProductCategoryMapListDTO, error)
+	FindAll() ([]productcategorymap.ProductCategoryMap, error)
+	FindByID(id uuid.UUID) (productcategorymap.ProductCategoryMap, error)
+	FindByProductID(productID uuid.UUID) ([]productcategorymap.ProductCategoryMap, error)
+	FindByCategoryID(categoryID uuid.UUID) ([]productcategorymap.ProductCategoryMap, error)
 }
 
 //productCategoryMapService is a struct for ProductCategoryMapService
@@ -29,37 +31,34 @@ func NewProductCategoryMapService(productCategoryMapRepository productcategoryma
 }
 
 //Create a new productcategorymap
-func (r *productCategoryMapService) Create(model dtos.ProductCategoryMapCreateDTO) (dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMap := dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) Create(model dtos.ProductCategoryMapCreateDTO) (productcategorymap.ProductCategoryMap, error) {
 	productCategoryEntity := productcategorymap.ProductCategoryMap{}
-	productCategoryEntity.ID = uuid.Must(uuid.NewV4())
 	productCategoryEntity.ProductID = model.ProductID
 	productCategoryEntity.CategoryID = model.CategoryID
+	productCategoryEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	productCategoryEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	productCategoryEntity.IsActive = true
 	err := r.productCategoryMapRepository.Create(&productCategoryEntity)
 	if err != nil {
-		return productCategoryMap, err
+		return productCategoryEntity, err
 	}
-	productCategoryMap.ID = productCategoryEntity.ID
-	productCategoryMap.Product.ID = productCategoryEntity.ProductID
-	productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-	return productCategoryMap, nil
+	return productCategoryEntity, nil
 }
 
 //Update a productcategorymap
-func (r *productCategoryMapService) Update(model dtos.ProductCategoryMapUpdateDTO) (dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMap := dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) Update(model dtos.ProductCategoryMapUpdateDTO) (productcategorymap.ProductCategoryMap, error) {
 	productCategoryEntity := productcategorymap.ProductCategoryMap{}
 	productCategoryEntity.ID = model.ID
 	productCategoryEntity.ProductID = model.ProductID
 	productCategoryEntity.CategoryID = model.CategoryID
+	productCategoryEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	productCategoryEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	productCategoryEntity.IsActive = true
 	err := r.productCategoryMapRepository.Update(&productCategoryEntity)
 	if err != nil {
-		return productCategoryMap, err
+		return productCategoryEntity, err
 	}
-	productCategoryMap.ID = productCategoryEntity.ID
-	productCategoryMap.Product.ID = productCategoryEntity.ProductID
-	productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-	return productCategoryMap, nil
+	return productCategoryEntity, nil
 }
 
 //Delete a productcategorymap
@@ -85,65 +84,41 @@ func (r *productCategoryMapService) DeleteByID(id uuid.UUID) error {
 }
 
 //FindAll productcategorymaps
-func (r *productCategoryMapService) FindAll() ([]dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMaps := []dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) FindAll() ([]productcategorymap.ProductCategoryMap, error) {
+	productcategorymapEmpty := []productcategorymap.ProductCategoryMap{}
 	productCategoryEntities, err := r.productCategoryMapRepository.FindAll()
 	if err != nil {
-		return productCategoryMaps, err
+		return productcategorymapEmpty, err
 	}
-	for _, productCategoryEntity := range productCategoryEntities {
-		productCategoryMap := dtos.ProductCategoryMapListDTO{}
-		productCategoryMap.ID = productCategoryEntity.ID
-		productCategoryMap.Product.ID = productCategoryEntity.ProductID
-		productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-		productCategoryMaps = append(productCategoryMaps, productCategoryMap)
-	}
-	return productCategoryMaps, nil
+	return productCategoryEntities, nil
 }
 
 //FindByID productcategorymap
-func (r *productCategoryMapService) FindByID(id uuid.UUID) (dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMap := dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) FindByID(id uuid.UUID) (productcategorymap.ProductCategoryMap, error) {
+	productcategorymapEmpty := productcategorymap.ProductCategoryMap{}
 	productCategoryEntity, err := r.productCategoryMapRepository.FindByID(id)
 	if err != nil {
-		return productCategoryMap, err
+		return productcategorymapEmpty, err
 	}
-	productCategoryMap.ID = productCategoryEntity.ID
-	productCategoryMap.Product.ID = productCategoryEntity.ProductID
-	productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-	return productCategoryMap, nil
+	return *productCategoryEntity, nil
 }
 
 //FindByProductID productcategorymap
-func (r *productCategoryMapService) FindByProductID(productID uuid.UUID) ([]dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMaps := []dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) FindByProductID(productID uuid.UUID) ([]productcategorymap.ProductCategoryMap, error) {
+	productcategorymapEmpty := []productcategorymap.ProductCategoryMap{}
 	productCategoryEntities, err := r.productCategoryMapRepository.FindByProductID(productID)
 	if err != nil {
-		return productCategoryMaps, err
+		return productcategorymapEmpty, err
 	}
-	for _, productCategoryEntity := range productCategoryEntities {
-		productCategoryMap := dtos.ProductCategoryMapListDTO{}
-		productCategoryMap.ID = productCategoryEntity.ID
-		productCategoryMap.Product.ID = productCategoryEntity.ProductID
-		productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-		productCategoryMaps = append(productCategoryMaps, productCategoryMap)
-	}
-	return productCategoryMaps, nil
+	return productCategoryEntities, nil
 }
 
 //FindByCategoryID productcategorymap
-func (r *productCategoryMapService) FindByCategoryID(categoryID uuid.UUID) ([]dtos.ProductCategoryMapListDTO, error) {
-	productCategoryMaps := []dtos.ProductCategoryMapListDTO{}
+func (r *productCategoryMapService) FindByCategoryID(categoryID uuid.UUID) ([]productcategorymap.ProductCategoryMap, error) {
+	productcategorymapEmpty := []productcategorymap.ProductCategoryMap{}
 	productCategoryEntities, err := r.productCategoryMapRepository.FindByCategoryID(categoryID)
 	if err != nil {
-		return productCategoryMaps, err
+		return productcategorymapEmpty, err
 	}
-	for _, productCategoryEntity := range productCategoryEntities {
-		productCategoryMap := dtos.ProductCategoryMapListDTO{}
-		productCategoryMap.ID = productCategoryEntity.ID
-		productCategoryMap.Product.ID = productCategoryEntity.ProductID
-		productCategoryMap.Category.ID = productCategoryEntity.CategoryID
-		productCategoryMaps = append(productCategoryMaps, productCategoryMap)
-	}
-	return productCategoryMaps, nil
+	return productCategoryEntities, nil
 }
