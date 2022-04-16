@@ -62,6 +62,7 @@ func (h *categoryHandler) GetAllCategoriesPaging(ctx *gin.Context) {
 	limit := ctx.Query("limit")
 	pageInt, _ := helpers.StringToInt(page)
 	limitInt, _ := helpers.StringToInt(limit)
+	pageInt = (pageInt - 1) * limitInt
 	categories, err := h.categoryService.FindAllWithPagination(pageInt, limitInt)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
