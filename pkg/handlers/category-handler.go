@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
-	"os"
+	"path/filepath"
 
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
@@ -100,28 +99,20 @@ func (h *categoryHandler) GetCategoryWithProducts(ctx *gin.Context) {
 
 //UploadCsvFile uploads a csv file
 func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
-	file, header, err := ctx.Request.FormFile("file")
+	file, err := ctx.FormFile("file")
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	filename := header.Filename
-	out, err := os.Create("uploads/" + filename)
-	if err != nil {
+	filename := filepath.Base(file.Filename)
+	//path := "../uploads/" + filename
+	if err := ctx.SaveUploadedFile(file, filename); err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	defer out.Close()
-	_, err = io.Copy(out, file)
-	if err != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	filepath := "http://localhost:8080/uploads/" + filename
-	response := helpers.BuildSuccessResponse(true, "Successful", filepath)
+	response := helpers.BuildSuccessResponse(true, "Successful", helpers.EmptyResponse{})
 	ctx.JSON(http.StatusOK, response)
 }
 

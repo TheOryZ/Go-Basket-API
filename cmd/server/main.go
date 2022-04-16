@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	postgres "github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/common/db"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/cart"
@@ -85,6 +86,7 @@ func main() {
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
 
+	router.StaticFS("/uploads", http.Dir("../../uploads"))
 	authRoutes := router.Group("api/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
