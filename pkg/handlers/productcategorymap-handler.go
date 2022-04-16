@@ -56,24 +56,11 @@ func (h *productCategoryMapHandler) GetAllProductCategoryMaps(ctx *gin.Context) 
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	productModel := dtos.ProductListDTO{
-		ID:               product.ID,
-		Name:             product.Name,
-		SKU:              product.SKU,
-		ShortDescription: product.ShortDescription,
-		Description:      product.Description,
-		Price:            product.Price,
-		UnitOfStock:      product.UnitOfStock,
-	}
-	categoryModel := dtos.CategoryListDTO{
-		ID:   category.ID,
-		Name: category.Name,
-	}
 	for _, productCategoryMap := range productCategoryMaps {
 		model = append(model, dtos.ProductCategoryMapListDTO{
 			ID:       productCategoryMap.ID,
-			Product:  &productModel,
-			Category: &categoryModel,
+			Product:  &product,
+			Category: &category,
 		})
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
@@ -82,6 +69,7 @@ func (h *productCategoryMapHandler) GetAllProductCategoryMaps(ctx *gin.Context) 
 
 // GetProductCategoryMap returns a product category map
 func (h *productCategoryMapHandler) GetProductCategoryMap(ctx *gin.Context) {
+	model := dtos.ProductCategoryMapListDTO{}
 	id := ctx.Param("id")
 	_id, _ := uuid.FromString(id)
 	productCategoryMap, err := h.productCategoryMapService.FindByID(_id)
@@ -90,11 +78,24 @@ func (h *productCategoryMapHandler) GetProductCategoryMap(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	response := helpers.BuildSuccessResponse(true, "Successful", dtos.ProductCategoryMapListDTO{
+	product, err := h.productService.FindByID(productCategoryMap.ProductID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	category, err := h.categoryService.FindByID(productCategoryMap.CategoryID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	model = dtos.ProductCategoryMapListDTO{
 		ID:       productCategoryMap.ID,
-		Product:  &dtos.ProductListDTO{ID: productCategoryMap.Product.ID, Name: productCategoryMap.Product.Name},
-		Category: &dtos.CategoryListDTO{ID: productCategoryMap.Category.ID, Name: productCategoryMap.Category.Name},
-	})
+		Product:  &product,
+		Category: &category,
+	}
+	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -123,11 +124,16 @@ func (h *productCategoryMapHandler) CreateProductCategoryMap(ctx *gin.Context) {
 		ProductID:  product.ID,
 		CategoryID: category.ID,
 	}
-	model, err := h.productCategoryMapService.Create(productCategoryMap)
+	modelEntity, err := h.productCategoryMapService.Create(productCategoryMap)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
+	}
+	model := dtos.ProductCategoryMapListDTO{
+		ID:       modelEntity.ID,
+		Product:  &product,
+		Category: &category,
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
@@ -158,11 +164,16 @@ func (h *productCategoryMapHandler) UpdateProductCategoryMap(ctx *gin.Context) {
 		ProductID:  product.ID,
 		CategoryID: category.ID,
 	}
-	model, err := h.productCategoryMapService.Update(productCategoryMap)
+	modelEntity, err := h.productCategoryMapService.Update(productCategoryMap)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
+	}
+	model := dtos.ProductCategoryMapListDTO{
+		ID:       modelEntity.ID,
+		Product:  &product,
+		Category: &category,
 	}
 	response := helpers.BuildSuccessResponse(true, "Successful", model)
 	ctx.JSON(http.StatusOK, response)
