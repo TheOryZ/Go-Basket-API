@@ -83,10 +83,10 @@ func main() {
 	userHandler := handlers.NewUserHandler(userService, roleService, jwtService)
 	statusHandler := handlers.NewStatusHandler(statusService, jwtService, roleService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
-	productHandler := handlers.NewProductHandler(productService, categoryService)
+	productHandler := handlers.NewProductHandler(productService, categoryService, roleService, jwtService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
-	productcategorymapHandler := handlers.NewProductCategoryMapHandler(productcategorymapService, productService, categoryService)
+	productcategorymapHandler := handlers.NewProductCategoryMapHandler(productcategorymapService, productService, categoryService, roleService, jwtService)
 
 	router.StaticFS("/uploads", http.Dir("../../uploads"))
 	authRoutes := router.Group("api/auth")
@@ -137,17 +137,17 @@ func main() {
 		productRoutes.GET("/pagign", productHandler.GetAllProductsPaging)
 		productRoutes.GET("/:id", productHandler.GetProduct)
 		productRoutes.GET("/:id/categories", productHandler.GetProductWithCategories)
-		productRoutes.POST("/", productHandler.CreateProduct)
-		productRoutes.PUT("/", productHandler.UpdateProduct)
-		productRoutes.DELETE("/:id", productHandler.DeleteProduct)
+		productRoutes.POST("/", productHandler.CreateProduct, middleware.AuthorizeJWT(jwtService))
+		productRoutes.PUT("/", productHandler.UpdateProduct, middleware.AuthorizeJWT(jwtService))
+		productRoutes.DELETE("/:id", productHandler.DeleteProduct, middleware.AuthorizeJWT(jwtService))
 	}
 	productCategoryMapRoutes := router.Group("api/productcategorymaps")
 	{
 		productCategoryMapRoutes.GET("/", productcategorymapHandler.GetAllProductCategoryMaps)
 		productCategoryMapRoutes.GET("/:id", productcategorymapHandler.GetProductCategoryMap)
-		productCategoryMapRoutes.POST("/", productcategorymapHandler.CreateProductCategoryMap)
-		productCategoryMapRoutes.PUT("/", productcategorymapHandler.UpdateProductCategoryMap)
-		productCategoryMapRoutes.DELETE("/:id", productcategorymapHandler.DeleteProductCategoryMap)
+		productCategoryMapRoutes.POST("/", productcategorymapHandler.CreateProductCategoryMap, middleware.AuthorizeJWT(jwtService))
+		productCategoryMapRoutes.PUT("/", productcategorymapHandler.UpdateProductCategoryMap, middleware.AuthorizeJWT(jwtService))
+		productCategoryMapRoutes.DELETE("/:id", productcategorymapHandler.DeleteProductCategoryMap, middleware.AuthorizeJWT(jwtService))
 	}
 	cartRoutes := router.Group("api/carts")
 	{

@@ -6,6 +6,7 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 )
@@ -25,13 +26,17 @@ type ProductHandler interface {
 type productHandler struct {
 	productService  services.ProductService
 	categoryService services.CategoryService
+	roleService     services.RoleService
+	jwtService      services.JWTService
 }
 
 // NewProductHandler returns a new ProductHandler
-func NewProductHandler(productService services.ProductService, categoryService services.CategoryService) ProductHandler {
+func NewProductHandler(productService services.ProductService, categoryService services.CategoryService, roleService services.RoleService, jwtService services.JWTService) ProductHandler {
 	return &productHandler{
 		productService:  productService,
 		categoryService: categoryService,
+		roleService:     roleService,
+		jwtService:      jwtService,
 	}
 }
 
@@ -143,6 +148,27 @@ func (h *productHandler) GetProductWithCategories(ctx *gin.Context) {
 
 // CreateProduct creates a product
 func (h *productHandler) CreateProduct(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var product dtos.ProductCreateDTO
 	if err := ctx.ShouldBindJSON(&product); err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
@@ -170,6 +196,27 @@ func (h *productHandler) CreateProduct(ctx *gin.Context) {
 
 // UpdateProduct updates a product
 func (h *productHandler) UpdateProduct(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var product dtos.ProductUpdateDTO
 	if err := ctx.ShouldBindJSON(&product); err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
@@ -197,9 +244,30 @@ func (h *productHandler) UpdateProduct(ctx *gin.Context) {
 
 // DeleteProduct deletes a product
 func (h *productHandler) DeleteProduct(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	id := ctx.Param("id")
 	productID, _ := uuid.FromString(id)
-	err := h.productService.DeleteByID(productID)
+	err = h.productService.DeleteByID(productID)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)

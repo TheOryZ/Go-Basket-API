@@ -6,6 +6,7 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 )
@@ -24,14 +25,18 @@ type productCategoryMapHandler struct {
 	productCategoryMapService services.ProductCategoryMapService
 	productService            services.ProductService
 	categoryService           services.CategoryService
+	roleService               services.RoleService
+	jwtService                services.JWTService
 }
 
 // NewProductCategoryMapHandler returns a new ProductCategoryMapHandler
-func NewProductCategoryMapHandler(productCategoryMapService services.ProductCategoryMapService, productService services.ProductService, categoryService services.CategoryService) ProductCategoryMapHandler {
+func NewProductCategoryMapHandler(productCategoryMapService services.ProductCategoryMapService, productService services.ProductService, categoryService services.CategoryService, roleService services.RoleService, jwtService services.JWTService) ProductCategoryMapHandler {
 	return &productCategoryMapHandler{
 		productCategoryMapService: productCategoryMapService,
 		productService:            productService,
 		categoryService:           categoryService,
+		roleService:               roleService,
+		jwtService:                jwtService,
 	}
 }
 
@@ -101,8 +106,29 @@ func (h *productCategoryMapHandler) GetProductCategoryMap(ctx *gin.Context) {
 
 // CreateProductCategoryMap creates a new product category map
 func (h *productCategoryMapHandler) CreateProductCategoryMap(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var productCategoryMapCreateDTO dtos.ProductCategoryMapCreateDTO
-	err := ctx.ShouldBindJSON(&productCategoryMapCreateDTO)
+	err = ctx.ShouldBindJSON(&productCategoryMapCreateDTO)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -141,8 +167,29 @@ func (h *productCategoryMapHandler) CreateProductCategoryMap(ctx *gin.Context) {
 
 // UpdateProductCategoryMap updates a product category map
 func (h *productCategoryMapHandler) UpdateProductCategoryMap(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var productCategoryMapUpdateDTO dtos.ProductCategoryMapUpdateDTO
-	err := ctx.ShouldBindJSON(&productCategoryMapUpdateDTO)
+	err = ctx.ShouldBindJSON(&productCategoryMapUpdateDTO)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -181,9 +228,30 @@ func (h *productCategoryMapHandler) UpdateProductCategoryMap(ctx *gin.Context) {
 
 // DeleteProductCategoryMap deletes a product category map
 func (h *productCategoryMapHandler) DeleteProductCategoryMap(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	id := ctx.Param("id")
 	_id, _ := uuid.FromString(id)
-	err := h.productCategoryMapService.DeleteByID(_id)
+	err = h.productCategoryMapService.DeleteByID(_id)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
