@@ -79,7 +79,7 @@ func main() {
 	userrolemapService := services.NewUserRoleMapService(userrolemapRepo)
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
-	roleHandler := handlers.NewRoleHandler(roleService, userService)
+	roleHandler := handlers.NewRoleHandler(roleService, userService, jwtService)
 	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
@@ -94,7 +94,7 @@ func main() {
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/register", authHandler.Register)
 	}
-	roleRoutes := router.Group("api/roles")
+	roleRoutes := router.Group("api/roles", middleware.AuthorizeJWT(jwtService))
 	{
 		roleRoutes.GET("/", roleHandler.GetAllRoles)
 		roleRoutes.GET("/:id", roleHandler.GetRole)
