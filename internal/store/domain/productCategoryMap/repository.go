@@ -38,7 +38,7 @@ func (r *productCategoryMapRepository) Create(productcategorymap *ProductCategor
 
 //Update a productcategorymap
 func (r *productCategoryMapRepository) Update(productcategorymap *ProductCategoryMap) error {
-	return r.db.Save(productcategorymap).Error
+	return r.db.Updates(productcategorymap).Error
 }
 
 //Delete a productcategorymap

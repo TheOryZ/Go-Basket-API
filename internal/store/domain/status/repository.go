@@ -38,7 +38,7 @@ func (r *statusRepository) Create(status *Status) error {
 
 //Update a status
 func (r *statusRepository) Update(status *Status) error {
-	return r.db.Save(status).Error
+	return r.db.Updates(status).Error
 }
 
 //Delete a status

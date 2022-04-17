@@ -39,7 +39,7 @@ func (r *roleRepository) Create(role *Role) error {
 
 //Update a role
 func (r *roleRepository) Update(role *Role) error {
-	return r.db.Save(role).Error
+	return r.db.Updates(role).Error
 }
 
 //Delete a role

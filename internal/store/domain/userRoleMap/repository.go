@@ -41,7 +41,7 @@ func (r *userRoleMapRepository) Create(userrolemap *UserRoleMap) error {
 
 //Update a userrolemap
 func (r *userRoleMapRepository) Update(userrolemap *UserRoleMap) error {
-	return r.db.Save(userrolemap).Error
+	return r.db.Updates(userrolemap).Error
 }
 
 //Delete a userrolemap

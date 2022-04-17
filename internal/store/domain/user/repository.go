@@ -50,7 +50,7 @@ func (r *userRepository) Update(user *User) error {
 		r.db.First(&tempUser, user.ID)
 		user.Password = tempUser.Password
 	}
-	return r.db.Save(user).Error
+	return r.db.Updates(user).Error
 }
 
 //Delete a user

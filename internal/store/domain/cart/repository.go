@@ -39,7 +39,7 @@ func (r *cartRepository) Create(cart *Cart) error {
 
 //Update a cart
 func (r *cartRepository) Update(cart *Cart) error {
-	return r.db.Save(cart).Error
+	return r.db.Updates(cart).Error
 }
 
 //Delete a cart

@@ -158,6 +158,7 @@ func main() {
 		cartRoutes.POST("/", cartHandler.CreateCart)
 		cartRoutes.PUT("/", cartHandler.UpdateCart)
 		cartRoutes.DELETE("/:id", cartHandler.DeleteCart)
+		cartRoutes.POST("/PassToOrder", cartHandler.PassToOrder)
 	}
 	orderRoutes := router.Group("api/orders", middleware.AuthorizeJWT(jwtService))
 	{

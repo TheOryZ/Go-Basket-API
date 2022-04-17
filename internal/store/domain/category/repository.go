@@ -42,7 +42,7 @@ func (r *categoryRepository) Create(category *Category) error {
 
 //Update a category
 func (r *categoryRepository) Update(category *Category) error {
-	return r.db.Save(category).Error
+	return r.db.Updates(category).Error
 }
 
 //Delete a category

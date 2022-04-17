@@ -38,7 +38,7 @@ func (r *orderRepository) Create(order *Order) error {
 
 //Update a order
 func (r *orderRepository) Update(order *Order) error {
-	return r.db.Save(order).Error
+	return r.db.Updates(order).Error
 }
 
 //Delete a order

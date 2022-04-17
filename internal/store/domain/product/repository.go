@@ -40,7 +40,7 @@ func (r *productRepository) Create(product *Product) error {
 
 //Update a product
 func (r *productRepository) Update(product *Product) error {
-	return r.db.Save(product).Error
+	return r.db.Updates(product).Error
 }
 
 //Delete a product

@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/order"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/gofrs/uuid"
@@ -37,6 +39,9 @@ func (r *orderService) Create(model dtos.OrderCreateDTO) error {
 	orderEntity.ProductID = model.ProductID
 	orderEntity.Quantity = model.Quantity
 	orderEntity.Price = model.Price
+	orderEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.IsActive = true
 	err := r.orderRepository.Create(&orderEntity)
 	if err != nil {
 		return err
@@ -53,6 +58,9 @@ func (r *orderService) Update(model dtos.OrderUpdateDTO) error {
 	orderEntity.ProductID = model.ProductID
 	orderEntity.Quantity = model.Quantity
 	orderEntity.Price = model.Price
+	orderEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.IsActive = true
 	err := r.orderRepository.Update(&orderEntity)
 	if err != nil {
 		return err
@@ -69,6 +77,9 @@ func (r *orderService) Delete(model dtos.OrderUpdateDTO) error {
 	orderEntity.ProductID = model.ProductID
 	orderEntity.Quantity = model.Quantity
 	orderEntity.Price = model.Price
+	orderEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	orderEntity.IsActive = true
 	err := r.orderRepository.Delete(&orderEntity)
 	if err != nil {
 		return err
