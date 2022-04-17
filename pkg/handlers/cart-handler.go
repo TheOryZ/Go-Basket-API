@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
@@ -342,6 +343,39 @@ func (h *cartHandler) PassToOrder(ctx *gin.Context) {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
+	}
+	var mu sync.Mutex
+	for i := range carts {
+		go func(obj *dtos.CartListDTO) {
+			mu.Lock()
+			defer mu.Unlock()
+			product, err := h.productService.FindByID(obj.Product.ID)
+			if err != nil {
+				response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+				ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+				return
+			}
+			if product.UnitOfStock < obj.Quantity {
+				response := helpers.BuildErrorResponse("Failed to process request", "Product is out of stock", helpers.EmptyResponse{})
+				ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+				return
+			}
+			product.UnitOfStock = product.UnitOfStock - obj.Quantity
+			var productUpdateDto dtos.ProductUpdateDTO
+			productUpdateDto.ID = product.ID
+			productUpdateDto.Name = product.Name
+			productUpdateDto.SKU = product.SKU
+			productUpdateDto.ShortDescription = product.ShortDescription
+			productUpdateDto.Description = product.Description
+			productUpdateDto.UnitOfStock = product.UnitOfStock
+			productUpdateDto.Price = product.Price
+			_, err = h.productService.Update(productUpdateDto)
+			if err != nil {
+				response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+				ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+				return
+			}
+		}(&carts[i])
 	}
 	var orderCreateModels []dtos.OrderCreateDTO
 	for _, cart := range carts {
