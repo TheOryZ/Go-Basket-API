@@ -11,7 +11,7 @@ type Product struct {
 	ShortDescription string    `json:"short_description" gorm:"type:varchar(255);not null"`
 	Description      string    `json:"description" gorm:"type:varchar(255);not null"`
 	Price            float64   `json:"price" gorm:"type:float;not null"`
-	UnitOfStock      int       `json:"unit_of_stock" gorm:"type:integer;not null"`
+	UnitOfStock      uint      `json:"unit_of_stock" gorm:"type:integer;not null"`
 	CreatedAt        string    `json:"created_at" gorm:"type:timestamp;not null"`
 	UpdatedAt        string    `json:"updated_at" gorm:"type:timestamp;not null"`
 	DeletedAt        string    `json:"deleted_at" gorm:"type:timestamp;default:null"`

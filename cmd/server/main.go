@@ -84,7 +84,7 @@ func main() {
 	statusHandler := handlers.NewStatusHandler(statusService, jwtService, roleService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
 	productHandler := handlers.NewProductHandler(productService, categoryService, roleService, jwtService)
-	cartHandler := handlers.NewCartHandler(cartService, statusService, productService, roleService, jwtService)
+	cartHandler := handlers.NewCartHandler(cartService, statusService, productService, roleService, jwtService, orderService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService, roleService, jwtService)
 	productcategorymapHandler := handlers.NewProductCategoryMapHandler(productcategorymapService, productService, categoryService, roleService, jwtService)
 
