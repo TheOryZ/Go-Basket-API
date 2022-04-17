@@ -15,6 +15,7 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/user"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/userrolemap"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/handlers"
+	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/middleware"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -81,7 +82,7 @@ func main() {
 	roleHandler := handlers.NewRoleHandler(roleService, userService)
 	userHandler := handlers.NewUserHandler(userService, roleService)
 	statusHandler := handlers.NewStatusHandler(statusService)
-	categoryHandler := handlers.NewCategoryHandler(categoryService, productService)
+	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
 	productHandler := handlers.NewProductHandler(productService, categoryService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
 	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
@@ -126,7 +127,7 @@ func main() {
 		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
 		categoryRoutes.GET("/:id/products", categoryHandler.GetCategoryWithProducts)
 		categoryRoutes.POST("/", categoryHandler.CreateCategory)
-		categoryRoutes.POST("/file", categoryHandler.UploadCsvFile)
+		categoryRoutes.POST("/file", categoryHandler.UploadCsvFile, middleware.AuthorizeJWT(jwtService))
 		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
 		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
 	}

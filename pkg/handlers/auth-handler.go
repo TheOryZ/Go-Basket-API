@@ -50,7 +50,7 @@ func (h *authHandler) Login(ctx *gin.Context) {
 		return
 	}
 	response := helpers.BuildErrorResponse("Login Failed", "Invalid Email or Password", helpers.EmptyResponse{})
-	ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 }
 
 func (h *authHandler) Register(ctx *gin.Context) {

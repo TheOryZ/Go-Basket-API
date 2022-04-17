@@ -7,6 +7,7 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 )
@@ -27,13 +28,17 @@ type CategoryHandler interface {
 type categoryHandler struct {
 	categoryService services.CategoryService
 	productService  services.ProductService
+	roleService     services.RoleService
+	jwtService      services.JWTService
 }
 
 // NewCategoryHandler returns a new CategoryHandler
-func NewCategoryHandler(categoryService services.CategoryService, productService services.ProductService) CategoryHandler {
+func NewCategoryHandler(categoryService services.CategoryService, productService services.ProductService, roleService services.RoleService, jwtService services.JWTService) CategoryHandler {
 	return &categoryHandler{
 		categoryService: categoryService,
 		productService:  productService,
+		roleService:     roleService,
+		jwtService:      jwtService,
 	}
 }
 
@@ -124,6 +129,27 @@ func (h *categoryHandler) GetCategoryWithProducts(ctx *gin.Context) {
 
 //UploadCsvFile uploads a csv file
 func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
@@ -137,7 +163,7 @@ func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
 		return
 	}
 	//ReadToCsv
-	records, err := helpers.ReadToCsv("./csvCategories.csv")
+	records, err := helpers.ReadToCsv(filename)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)

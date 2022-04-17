@@ -104,7 +104,7 @@ func (r *categoryRepository) FindByProductID(id uuid.UUID) ([]Category, error) {
 	var categories []Category
 	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
 		Where("map.product_id = ?", id).
-		Where("category.deleted_at is null").
+		Where("map.deleted_at is null").
 		Select("category.*").
 		Find(&categories).Error
 	return categories, err
@@ -114,7 +114,7 @@ func (r *categoryRepository) FindByProductID(id uuid.UUID) ([]Category, error) {
 func (r *categoryRepository) FindAllWithProducts() ([]Category, error) {
 	var categories []Category
 	err := r.db.Joins(" INNER JOIN product_category_map map ON map.category_id = category.id").
-		Where("category.deleted_at is null").
+		Where("map.deleted_at is null").
 		Select("category.*").
 		Find(&categories).Error
 	return categories, err
