@@ -126,10 +126,10 @@ func main() {
 		categoryRoutes.GET("/pagign", categoryHandler.GetAllCategoriesPaging)
 		categoryRoutes.GET("/:id", categoryHandler.GetCategory)
 		categoryRoutes.GET("/:id/products", categoryHandler.GetCategoryWithProducts)
-		categoryRoutes.POST("/", categoryHandler.CreateCategory)
+		categoryRoutes.POST("/", categoryHandler.CreateCategory, middleware.AuthorizeJWT(jwtService))
 		categoryRoutes.POST("/file", categoryHandler.UploadCsvFile, middleware.AuthorizeJWT(jwtService))
-		categoryRoutes.PUT("/", categoryHandler.UpdateCategory)
-		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory)
+		categoryRoutes.PUT("/", categoryHandler.UpdateCategory, middleware.AuthorizeJWT(jwtService))
+		categoryRoutes.DELETE("/:id", categoryHandler.DeleteCategory, middleware.AuthorizeJWT(jwtService))
 	}
 	productRoutes := router.Group("api/products")
 	{

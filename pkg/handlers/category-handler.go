@@ -182,8 +182,29 @@ func (h *categoryHandler) UploadCsvFile(ctx *gin.Context) {
 
 // CreateCategory creates a category
 func (h *categoryHandler) CreateCategory(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var category dtos.CategoryCreateDTO
-	err := ctx.ShouldBindJSON(&category)
+	err = ctx.ShouldBindJSON(&category)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -205,8 +226,29 @@ func (h *categoryHandler) CreateCategory(ctx *gin.Context) {
 
 // UpdateCategory updates a category
 func (h *categoryHandler) UpdateCategory(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var category dtos.CategoryUpdateDTO
-	err := ctx.ShouldBindJSON(&category)
+	err = ctx.ShouldBindJSON(&category)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -228,9 +270,30 @@ func (h *categoryHandler) UpdateCategory(ctx *gin.Context) {
 
 // DeleteCategory deletes a category
 func (h *categoryHandler) DeleteCategory(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	id := ctx.Param("id")
 	categoryID, _ := uuid.FromString(id)
-	err := h.categoryService.DeleteByID(categoryID)
+	err = h.categoryService.DeleteByID(categoryID)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
