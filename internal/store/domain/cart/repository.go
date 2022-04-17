@@ -19,6 +19,7 @@ type ICartRepository interface {
 	FindAll() ([]Cart, error)
 	FindByID(id uuid.UUID) (*Cart, error)
 	FindByUserID(userID uuid.UUID) ([]Cart, error)
+	FindByUserIDAndID(userID, id uuid.UUID) ([]Cart, error)
 	FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Cart, error)
 }
 
@@ -78,5 +79,12 @@ func (r *cartRepository) FindByUserID(userID uuid.UUID) ([]Cart, error) {
 func (r *cartRepository) FindByUserIDInProgress(userID, statusID uuid.UUID) ([]Cart, error) {
 	var carts []Cart
 	err := r.db.Where("user_id = ? AND status_id = ? AND deleted_at is null", userID, statusID).Find(&carts).Error
+	return carts, err
+}
+
+//FindByUserIDAndID find a cart by user id and id
+func (r *cartRepository) FindByUserIDAndID(userID, id uuid.UUID) ([]Cart, error) {
+	var carts []Cart
+	err := r.db.Where("user_id = ? AND id = ? AND deleted_at is null", userID, id).Find(&carts).Error
 	return carts, err
 }

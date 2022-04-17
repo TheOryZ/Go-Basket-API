@@ -26,15 +26,20 @@ type orderHandler struct {
 	productService services.ProductService
 	userService    services.UserService
 	statusService  services.StatusService
+	roleService    services.RoleService
+	jwtService     services.JWTService
 }
 
-func NewOrderHandler(orderService services.OrderService, cartService services.CartService, productService services.ProductService, userService services.UserService, statusService services.StatusService) OrderHandler {
+func NewOrderHandler(orderService services.OrderService, cartService services.CartService, productService services.ProductService,
+	userService services.UserService, statusService services.StatusService, roleService services.RoleService, jwtService services.JWTService) OrderHandler {
 	return &orderHandler{
 		orderService:   orderService,
 		cartService:    cartService,
 		productService: productService,
 		userService:    userService,
 		statusService:  statusService,
+		roleService:    roleService,
+		jwtService:     jwtService,
 	}
 }
 

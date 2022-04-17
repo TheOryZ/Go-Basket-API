@@ -18,6 +18,7 @@ type RoleService interface {
 	FindByID(id uuid.UUID) (dtos.RoleListDTO, error)
 	FindByUserID(id uuid.UUID) ([]dtos.RoleListDTO, error)
 	CheckAdminByUserID(id uuid.UUID) (bool, error)
+	CheckMemberByUserID(id uuid.UUID) (bool, error)
 	FindByName(name string) (dtos.RoleListDTO, error)
 }
 
@@ -163,6 +164,20 @@ func (s *roleService) CheckAdminByUserID(id uuid.UUID) (bool, error) {
 	}
 	for _, role := range *roleModel {
 		if role.Name == "admin" {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+//CheckMemberByUserID a role
+func (s *roleService) CheckMemberByUserID(id uuid.UUID) (bool, error) {
+	roleModel, err := s.roleRepository.FindByUserID(id)
+	if err != nil {
+		return false, err
+	}
+	for _, role := range *roleModel {
+		if role.Name == "member" {
 			return true, nil
 		}
 	}

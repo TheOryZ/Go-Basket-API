@@ -84,8 +84,8 @@ func main() {
 	statusHandler := handlers.NewStatusHandler(statusService, jwtService, roleService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
 	productHandler := handlers.NewProductHandler(productService, categoryService, roleService, jwtService)
-	cartHandler := handlers.NewCartHandler(cartService, statusService)
-	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService)
+	cartHandler := handlers.NewCartHandler(cartService, statusService, productService, roleService, jwtService)
+	orderHandler := handlers.NewOrderHandler(orderService, cartService, productService, userService, statusService, roleService, jwtService)
 	productcategorymapHandler := handlers.NewProductCategoryMapHandler(productcategorymapService, productService, categoryService, roleService, jwtService)
 
 	router.StaticFS("/uploads", http.Dir("../../uploads"))
@@ -149,7 +149,7 @@ func main() {
 		productCategoryMapRoutes.PUT("/", productcategorymapHandler.UpdateProductCategoryMap, middleware.AuthorizeJWT(jwtService))
 		productCategoryMapRoutes.DELETE("/:id", productcategorymapHandler.DeleteProductCategoryMap, middleware.AuthorizeJWT(jwtService))
 	}
-	cartRoutes := router.Group("api/carts")
+	cartRoutes := router.Group("api/carts", middleware.AuthorizeJWT(jwtService))
 	{
 		cartRoutes.GET("/", cartHandler.GetAllCarts)
 		cartRoutes.GET("/:id", cartHandler.GetCart)
@@ -159,7 +159,7 @@ func main() {
 		cartRoutes.PUT("/", cartHandler.UpdateCart)
 		cartRoutes.DELETE("/:id", cartHandler.DeleteCart)
 	}
-	orderRoutes := router.Group("api/orders")
+	orderRoutes := router.Group("api/orders", middleware.AuthorizeJWT(jwtService))
 	{
 		orderRoutes.GET("/", orderHandler.GetAllOrders)
 		orderRoutes.GET("/:id", orderHandler.GetOrder)

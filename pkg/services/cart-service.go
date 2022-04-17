@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/cart"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/gofrs/uuid"
@@ -16,6 +18,7 @@ type CartService interface {
 	FindByID(id uuid.UUID) (dtos.CartListDTO, error)
 	FindByUserID(userid uuid.UUID) ([]dtos.CartListDTO, error)
 	FindByUserIDInProgress(userid, statusid uuid.UUID) ([]dtos.CartListDTO, error)
+	CheckByUserIDAndID(userid, id uuid.UUID) (bool, error)
 }
 
 //cartService is a struct for CartService
@@ -31,9 +34,14 @@ func NewCartService(cartRepository cart.ICartRepository) CartService {
 //Create a new cart
 func (r *cartService) Create(model dtos.CartCreateDTO) error {
 	cartEntity := cart.Cart{}
-	cartEntity.ID = uuid.Must(uuid.NewV4())
 	cartEntity.UserID = model.UserID
+	cartEntity.ProductID = model.ProductID
+	cartEntity.Quantity = model.Quantity
+	cartEntity.Price = model.Price
 	cartEntity.StatusID = model.StatusID
+	cartEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.IsActive = true
 	err := r.cartRepository.Create(&cartEntity)
 	if err != nil {
 		return err
@@ -46,7 +54,12 @@ func (r *cartService) Update(model dtos.CartUpdateDTO) error {
 	cartEntity := cart.Cart{}
 	cartEntity.ID = model.ID
 	cartEntity.UserID = model.UserID
+	cartEntity.ProductID = model.ProductID
+	cartEntity.Quantity = model.Quantity
 	cartEntity.StatusID = model.StatusID
+	cartEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.IsActive = true
 	err := r.cartRepository.Update(&cartEntity)
 	if err != nil {
 		return err
@@ -59,7 +72,12 @@ func (r *cartService) Delete(model dtos.CartUpdateDTO) error {
 	cartEntity := cart.Cart{}
 	cartEntity.ID = model.ID
 	cartEntity.UserID = model.UserID
+	cartEntity.ProductID = model.ProductID
+	cartEntity.Quantity = model.Quantity
 	cartEntity.StatusID = model.StatusID
+	cartEntity.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	cartEntity.IsActive = true
 	err := r.cartRepository.Delete(&cartEntity)
 	if err != nil {
 		return err
@@ -153,4 +171,16 @@ func (r *cartService) FindByUserIDInProgress(userid, statusid uuid.UUID) ([]dtos
 		})
 	}
 	return cartList, nil
+}
+
+//CheckByUserIDAndID check if cart exist by user id and id
+func (r *cartService) CheckByUserIDAndID(userid, id uuid.UUID) (bool, error) {
+	carts, err := r.cartRepository.FindByUserIDAndID(userid, id)
+	if err != nil {
+		return false, err
+	}
+	if len(carts) > 0 {
+		return true, nil
+	}
+	return false, nil
 }
