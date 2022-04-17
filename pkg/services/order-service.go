@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/internal/store/domain/order"
@@ -18,6 +19,7 @@ type OrderService interface {
 	FindByID(id uuid.UUID) (dtos.OrderListDTO, error)
 	FindByUserID(userid uuid.UUID) ([]dtos.OrderListDTO, error)
 	FindByUserIDInProgress(userid, statusid uuid.UUID) ([]dtos.OrderListDTO, error)
+	CancelOrder(id uuid.UUID, cancelStatusId uuid.UUID) (bool, error)
 }
 
 //orderService is a struct for OrderService
@@ -172,4 +174,21 @@ func (r *orderService) FindByUserIDInProgress(userid, statusid uuid.UUID) ([]dto
 		})
 	}
 	return orderList, nil
+}
+
+//CancelOrder order
+func (r *orderService) CancelOrder(id uuid.UUID, cancelStatusId uuid.UUID) (bool, error) {
+	orderEntity, err := r.orderRepository.FindByID(id)
+	if err != nil {
+		return false, err
+	}
+	if orderEntity.CreatedAt < time.Now().AddDate(0, 0, -14).Format("2006-01-02 15:04:05") {
+		return false, errors.New("Order can not be canceled")
+	}
+	orderEntity.StatusID = cancelStatusId
+	err = r.orderRepository.Update(orderEntity)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

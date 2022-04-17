@@ -164,10 +164,10 @@ func main() {
 	{
 		orderRoutes.GET("/", orderHandler.GetAllOrders)
 		orderRoutes.GET("/:id", orderHandler.GetOrder)
-		orderRoutes.GET("/user/:id", orderHandler.GetOrderByUser)
-		orderRoutes.POST("/", orderHandler.CreateOrder)
-		orderRoutes.PUT("/", orderHandler.UpdateOrder)
-		orderRoutes.DELETE("/:id", orderHandler.DeleteOrder)
+		orderRoutes.GET("/InProgress", orderHandler.GetOrderByUserInProgress)
+		orderRoutes.GET("/Completed", orderHandler.GetOrderByUserInCompleted)
+		orderRoutes.GET("/Canceled", orderHandler.GetOrderByUserInCancelled)
+		orderRoutes.POST("/:id", orderHandler.CancelOrderById)
 	}
 
 	router.Run(":8080")

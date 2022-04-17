@@ -137,8 +137,6 @@ func (h *cartHandler) GetCartsByUserID(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		return
 	}
-	//id := ctx.Param("id")
-	//userID, _ := uuid.FromString(id)
 	carts, err := h.cartService.FindByUserID(userID)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
@@ -338,6 +336,7 @@ func (h *cartHandler) PassToOrder(ctx *gin.Context) {
 	}
 	status, _ := h.statusService.FindByName("In Progress")
 	statusCompleted, _ := h.statusService.FindByName("Completed")
+	//Get carts by user id
 	carts, err := h.cartService.FindByUserIDInProgress(userID, status.ID)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
