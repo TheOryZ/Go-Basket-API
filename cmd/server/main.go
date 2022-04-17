@@ -80,8 +80,8 @@ func main() {
 	//Handlers
 	authHandler := handlers.NewAuthHandler(authService, jwtService, roleService, userrolemapService)
 	roleHandler := handlers.NewRoleHandler(roleService, userService, jwtService)
-	userHandler := handlers.NewUserHandler(userService, roleService)
-	statusHandler := handlers.NewStatusHandler(statusService)
+	userHandler := handlers.NewUserHandler(userService, roleService, jwtService)
+	statusHandler := handlers.NewStatusHandler(statusService, jwtService, roleService)
 	categoryHandler := handlers.NewCategoryHandler(categoryService, productService, roleService, jwtService)
 	productHandler := handlers.NewProductHandler(productService, categoryService)
 	cartHandler := handlers.NewCartHandler(cartService, statusService)
@@ -105,20 +105,20 @@ func main() {
 	}
 	userRoutes := router.Group("api/users")
 	{
-		userRoutes.GET("/", userHandler.GetAllUsers)
+		userRoutes.GET("/", userHandler.GetAllUsers, middleware.AuthorizeJWT(jwtService))
 		userRoutes.GET("/:id", userHandler.GetUser)
 		userRoutes.GET("/:id/roles", userHandler.GetUserWithRoles)
-		userRoutes.POST("/", userHandler.CreateUser)
-		userRoutes.PUT("/", userHandler.UpdateUser)
-		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+		userRoutes.POST("/", userHandler.CreateUser, middleware.AuthorizeJWT(jwtService))
+		userRoutes.PUT("/", userHandler.UpdateUser, middleware.AuthorizeJWT(jwtService))
+		userRoutes.DELETE("/:id", userHandler.DeleteUser, middleware.AuthorizeJWT(jwtService))
 	}
 	statusRoutes := router.Group("api/status")
 	{
 		statusRoutes.GET("/", statusHandler.GetAllStatus)
 		statusRoutes.GET("/:id", statusHandler.GetStatus)
-		statusRoutes.POST("/", statusHandler.CreateStatus)
-		statusRoutes.PUT("/", statusHandler.UpdateStatus)
-		statusRoutes.DELETE("/:id", statusHandler.DeleteStatus)
+		statusRoutes.POST("/", statusHandler.CreateStatus, middleware.AuthorizeJWT(jwtService))
+		statusRoutes.PUT("/", statusHandler.UpdateStatus, middleware.AuthorizeJWT(jwtService))
+		statusRoutes.DELETE("/:id", statusHandler.DeleteStatus, middleware.AuthorizeJWT(jwtService))
 	}
 	categoryRoutes := router.Group("api/categories")
 	{

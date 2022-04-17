@@ -6,6 +6,7 @@ import (
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/dtos"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/helpers"
 	"github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-TheOryZ/pkg/services"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 )
@@ -24,18 +25,41 @@ type UserHandler interface {
 type userHandler struct {
 	userService services.UserService
 	roleService services.RoleService
+	jwtService  services.JWTService
 }
 
 //NewUserHandler returns a new UserHandler
-func NewUserHandler(userService services.UserService, roleService services.RoleService) UserHandler {
+func NewUserHandler(userService services.UserService, roleService services.RoleService, jwtService services.JWTService) UserHandler {
 	return &userHandler{
 		userService: userService,
 		roleService: roleService,
+		jwtService:  jwtService,
 	}
 }
 
 //GetAllUsers returns all users
 func (h *userHandler) GetAllUsers(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	model := []dtos.UserListDTO{}
 	users, err := h.userService.FindAll()
 	if err != nil {
@@ -101,8 +125,29 @@ func (h *userHandler) GetUserWithRoles(ctx *gin.Context) {
 
 //CreateUser creates a new user
 func (h *userHandler) CreateUser(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var user dtos.UserCreateDTO
-	err := ctx.BindJSON(&user)
+	err = ctx.BindJSON(&user)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -123,8 +168,29 @@ func (h *userHandler) CreateUser(ctx *gin.Context) {
 
 //UpdateUser updates a user
 func (h *userHandler) UpdateUser(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	var user dtos.UserUpdateDTO
-	err := ctx.BindJSON(&user)
+	err = ctx.BindJSON(&user)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -146,9 +212,30 @@ func (h *userHandler) UpdateUser(ctx *gin.Context) {
 
 //DeleteUser deletes a user
 func (h *userHandler) DeleteUser(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	token, err := h.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	userID, err := helpers.StringToUUID(claims["user_id"].(string))
+	//CheckAdminRole
+	isAdmin, err := h.roleService.CheckAdminByUserID(userID)
+	if err != nil {
+		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+	if !isAdmin {
+		response := helpers.BuildErrorResponse("Failed to process request", "You are not admin", helpers.EmptyResponse{})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+		return
+	}
 	id := ctx.Param("id")
 	userUuid, _ := uuid.FromString(id)
-	err := h.userService.DeleteByID(userUuid)
+	err = h.userService.DeleteByID(userUuid)
 	if err != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
