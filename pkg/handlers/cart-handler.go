@@ -336,19 +336,6 @@ func (h *cartHandler) PassToOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		return
 	}
-	id := ctx.Param("id")
-	cartID, _ := uuid.FromString(id)
-	IsOwner, err := h.cartService.CheckByUserIDAndID(userID, cartID)
-	if err != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", err.Error(), helpers.EmptyResponse{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
-		return
-	}
-	if !IsOwner {
-		response := helpers.BuildErrorResponse("Failed to process request", "You are not owner", helpers.EmptyResponse{})
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
-		return
-	}
 	status, _ := h.statusService.FindByName("In Progress")
 	statusCompleted, _ := h.statusService.FindByName("Completed")
 	carts, err := h.cartService.FindByUserIDInProgress(userID, status.ID)
