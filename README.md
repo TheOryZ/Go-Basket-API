@@ -17,3 +17,10 @@ The id values in the tables are of uuid type.
 ## Third Party packages
 
 * The program is created with **GO main package & GORM & Godotenv & go-swagger & Gin & Json Web Token & uuid**.
+
+## TODO
+
+- [ ] Add more test
+- [ ] Add swagger entegration with swaggo
+- [ ] Add docker
+- [ ] Configure docker compose
