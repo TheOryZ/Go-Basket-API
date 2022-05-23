@@ -22,5 +22,6 @@ The id values in the tables are of uuid type.
 
 - [ ] Add more test
 - [ ] Add swagger entegration with swaggo
+- [ ] Add Graceful shutdown
 - [ ] Add docker
 - [ ] Configure docker compose
